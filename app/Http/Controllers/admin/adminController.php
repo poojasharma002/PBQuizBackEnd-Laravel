@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\question;
 use App\Models\settings;
 use App\Models\game;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Models\trophy;
@@ -356,7 +357,7 @@ class adminController extends Controller
         return redirect(route('all_games'))->with('message', 'Game updated successfully');
     }
 
-    function publish_game(Request $request)
+    public function publish_game(Request $request)
     {
         $game = game::find($request->id);
         if ($game->published == '1') {
@@ -374,5 +375,26 @@ class adminController extends Controller
     {
         $response = game::destroy($request->id);
         return response()->json(['success' => "Game Deleted successfully."]);
+    }
+
+    /**
+     * 
+     *   Get All Users Controller, Delete Users
+     * 
+     */
+
+    public function all_users(Request $request)
+    {
+        $users = User::where('role', 'user')->get();
+        $data = [
+            'data' =>  $users
+        ];
+        return view('pages.admin.users.all_users', $data);
+    }
+
+    public function delete_user(Request $request)
+    {
+        $response = User::destroy($request->id);
+        return response()->json(['success' => "User Deleted successfully."]);
     }
 }

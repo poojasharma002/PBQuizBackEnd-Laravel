@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
  use Laravel\Socialite\Facades\Socialite;
  use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Oauth\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,12 +26,6 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/hello',function(){
     return "Hello World";
 }); 
-
-
-//if token is not provided in the request header, then return error
-Route::group(['middleware' => ['auth:sanctum']], function () {
-   
-});
 
 Route::get('/games/{id}',[gameController::class,'getGameInfo']);
 
@@ -52,7 +47,21 @@ Route::get('/single_player_game',[gameController::class,'getSinglePlayerGame']);
 
 Route::get('/multi_player_game',[gameController::class,'getMultiPlayerGame']);
 
-Route::post('/userGamePlayedData',[gameController::class,'insertUserGamePlayedData']);
+
+
+Route::middleware(['checkHeaderToken'])->group(function () {
+    Route::post('/googleOauthLogin', [LoginController::class, 'googleLogin']);
+});
+
+
+Route::middleware(['VerifyUser'])->group(function () {
+    Route::post('/userGamePlayedData',[gameController::class,'insertUserGamePlayedData']);
+    //api to get trophies of a particular user id 
+    Route::get('/user_trophies/{id}',[gameController::class,'getUserTrophies']);    
+});
+
+
+
 
 
 

@@ -48,6 +48,15 @@
             </a>
           </li>
 
+          <li  class="nav-item {{ Route::is('all_users') ? 'bg-light' : '' }} ">
+            <a href="{{url('all_users')}}" class="nav-link">
+              <i class="nav-icon fa fa-users nav-item {{ Route::is('all_users') ? 'text-primary' : 'text-white' }} "></i>
+              <p class="nav-item {{ Route::is('all_users') ? 'text-primary' : 'text-white' }} ">
+                Users
+              </p>
+            </a>
+          </li>
+
           <li class="nav-item">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-edit text-light"></i>

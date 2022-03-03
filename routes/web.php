@@ -7,7 +7,7 @@ use App\Http\Controllers\editEmployeeDetailsController;
 use App\Http\Controllers\mailController;
 use App\Http\Controllers\admin\adminController;
 use App\Http\Controllers\admin\settingsController;
-use App\Http\Controllers\Oauth\LoginController;
+
 
 
 /*
@@ -84,13 +84,23 @@ Route::post('/publish/game', [adminController::class, 'publish_game'])
 
 Route::post('delete/game', [adminController::class, 'delete_game']);
 
+
 /**
  * 
- * google oauth login
+ *  User Routes
  * 
  */
 
-Route::post('/googleOauthLogin', [LoginController::class, 'googleLogin']);
+Route::get('/all_users', [adminController::class, 'all_users'])
+->middleware(['auth', 'verified'])
+->name('all_users');
+
+//delete user
+Route::post('/delete/user', [adminController::class, 'delete_user']);
+
+
+
+
 
 
 require __DIR__.'/auth.php';

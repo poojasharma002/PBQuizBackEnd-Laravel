@@ -12,6 +12,9 @@ use App\Models\trophy;
 use App\Models\User;
 use DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Api\GameRequest;
+
 
 use App\Models\statistics;
 use App\Http\Resources\GameResource;
@@ -23,32 +26,37 @@ class gameController extends Controller
 
     public function getAllGames()
     {
-        //get games which are published and not deleted and order 
-        //by schedule_date and schedule_time
-        $games = game::where('published', 1)->where('deleted', 0)->orderBy('schedule_date', 'asc')->orderBy('schedule_time', 'asc')->get();
+        try{
+            $games = game::where('published',1)
+            ->where('deleted',0)
+            ->orderBy('schedule_date','asc')
+            ->orderBy('schedule_time','asc')
+            ->get();
 
-
-        // return (GameResource::collection($games))->response()->setStatusCode(200);
-        //get all games name and id
-        $games_name_id = [];
-        foreach ($games as $game) {
-            $games_name_id[] = [
-                'id' => $game->id,
-                'name' => $game->gamename,
-                'image' => $game->game_image,
-                'type' => $game->gametype,
-                'schedule_time' => $game->schedule_time,
-                'schedule_date' => $game->schedule_date
+            $games_name_id = [];
+            foreach ($games as $game) {
+                $games_name_id[] = [
+                    'id' => $game->id,
+                    'name' => $game->gamename,
+                    'image' => $game->game_image,
+                    'type' => $game->gametype,
+                    'schedule_time' => $game->schedule_time,
+                    'schedule_date' => $game->schedule_date
+                ];
+            }
+    
+            $data = [
+                'success' => true,
+                'data' => $games_name_id,
+                'error' => null,
+                'status' => 200
             ];
+            return response()->json($data)->setStatusCode(200);
+        }
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
         }
 
-        $data = [
-            'success' => true,
-            'data' => $games_name_id,
-            'error' => null,
-            'status' => 200
-        ];
-        return response()->json($data)->setStatusCode(200);
     }
 
     public function getSinglePlayerGame()
@@ -371,49 +379,120 @@ class gameController extends Controller
 
 
 
-    public function insertUserGamePlayedData(Request $request)
+    public function insertUserGamePlayedData(GameRequest $request)
     {
-        $this->validate(request(), [
-            'user_id' => 'required|integer',
-            'game_id' => 'required|integer',
-            'correct_answer' => 'required|integer',
-            'incorrect_answer' => 'required|integer',
-            // 'skipped_answer' => 'required|integer',
-            'total_score' => 'required|integer',
-            'total_questions' => 'required|integer',
-            'game_won' => 'required|boolean',
-            'trophy_won' => 'required|boolean',
-            'game_date' => 'required|date',
-            'game_time' => 'required|string',
-        ]);
-        $skipped_question =  $request->total_questions - ($request->correct_answer + $request->incorrect_answer);
-        statistics::create([
-            'user_id' => $request->user_id,
-            'game_id' => $request->game_id,
-            'correct_answer' => $request->correct_answer,
-            'incorrect_answer' => $request->incorrect_answer,
-            'skipped_question' => $skipped_question,
-            'total_score' => $request->total_score,
-            'game_won' => $request->game_won,
-            'trophy_won' => $request->trophy_won,
-            'game_date' => $request->game_date,
-            'game_time' => $request->game_time
-        ]);
+                $headerToken = $request->header('Authorization');
+                $user = User::where('token', $headerToken)->first();
+                $validatedData = $request->validated();      
 
-        //check if game is won and update user trophies
-        if ($request->game_won == 1) {
-            $user = User::find($request->user_id);
-            $user_id = $user->id;
-            $game_id = $request->game_id;
-            $trophy_id = game::where('id', $game_id)->first()->trophy;
-            trophy::where('id', $trophy_id)->update(['trophy_won' => true]);
+                $skipped_question =  $request->total_questions - ($request->correct_answer + $request->incorrect_answer);
+
+                if($request->correct_answer ==  $request->total_questions){
+                    $star_won = 1;
+                }else{
+                    $star_won = 0;
+                }
+
+                try{
+                    statistics::create([
+                        'user_id' => $request->user_id,
+                        'game_id' => $request->game_id,
+                        'correct_answer' => $request->correct_answer,
+                        'incorrect_answer' => $request->incorrect_answer,
+                        'skipped_question' => $skipped_question,
+                        'total_questions' => $request->total_questions,
+                        'total_score' => $request->total_score,
+                        'game_won' => $request->game_won,
+                        'trophy_won' => 1,
+                        'star_won'=> $star_won,
+                        'game_date' => $request->game_date,
+                        'game_time' => $request->game_time
+                    ]);
+            
+
+                    if ($request->game_won == 1) {
+                        $user_id = $user->id;
+                        $game_id = $request->game_id;
+                        $trophy_id = game::where('id', $game_id)->first()->trophy;
+                        trophy::where('id', $trophy_id)->update(['trophy_won' => 1]);
+                    }
+            
+                    $data = [
+                        'success' => true,
+                        'message' => 'Game played data inserted successfully',
+                        'status' => 200
+                    ];
+            
+                    return response()->json($data)->setStatusCode(200);
+                }
+
+                catch(Exception $e){
+                    $data = [
+                        'success' => false,
+                        'data' => null,
+                        'error' => $e->getMessage(),
+                        'status' => 500
+                    ];
+                    return response()->json($data)->setStatusCode(500);
+                }
+    }
+
+    public function getUserTrophies(Request $request)
+    {
+        $headerToken = $request->header('Authorization');
+        $user = User::where('token', $headerToken)->first();
+        $user_id = $user->id;
+
+        //check all distinct trophies won by user and return the trophies which has highest total score
+        $trophies = statistics::where('user_id', $user_id)
+            ->distinct()
+            ->get(['trophy_won']);
+
+        $trophies_won = [];
+        foreach ($trophies as $trophy) {
+            $trophies_won[] = [
+                'trophy_id' => $trophy->trophy_won,
+                'trophy_name' => trophy::where('id', $trophy->trophy_won)->first()->name,
+                'trophy_description' => trophy::where('id', $trophy->trophy_won)->first()->description,
+                'trophy_image' => trophy::where('id', $trophy->trophy_won)->first()->image,
+                'trophy_score' => statistics::where('user_id', $user_id)
+                    ->where('trophy_won', $trophy->trophy_won)
+                    ->sum('total_score')
+            ];
         }
+
+        
+
+
+        //get the distinct trophies won by the user from the statistics table
+        $trophies = statistics::distinct()
+            ->where('user_id', $user_id)
+            ->get(['trophy_won']);
+
+        $trophies_won = [];
+        foreach ($trophies as $trophy) {
+            $trophies_won[] = $trophy->trophy_won;
+        }
+        //get details about that trophy
+        $trophies_details = trophy::whereIn('id', $trophies_won)->get();
+        //send user details and trophies won in the response
+
 
         $data = [
             'success' => true,
-            'message' => 'Game played data inserted successfully',
+            'data' => $trophies_details,
+            'error' => null,
             'status' => 200
         ];
+
+        
+
+        // $data = [
+        //     'success' => true,
+        //     'data' => $trophies,
+        //     'error' => null,
+        //     'status' => 200
+        // ];
 
         return response()->json($data)->setStatusCode(200);
     }

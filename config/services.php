@@ -31,9 +31,9 @@ return [
     ],
 
     'google' => [
-        'client_id' => env('759271737158-d2rt5nqopkc4rnvck4lfe4qhgmkbtjkm.apps.googleusercontent.com'),
-        'client_secret' => env('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'),
-        'redirect' => 'http://127.0.0.1:8000/dashboard',
+        'client_id' => env('1021141751036-4fni0ran8k8fjia742km6cagicv0593o.apps.googleusercontent.com'),
+        'client_secret' => env('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'),
+        'redirect' => 'http://localhost:3000',
     ],
 
 ];

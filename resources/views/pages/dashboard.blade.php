@@ -62,6 +62,24 @@
             </div>
             </a>
           </div>
+
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <a href="{{url('all_users')}}">
+            <div class="small-box " style="background:#f5c9c9">
+              <div class="inner p-3 py-5">
+              <h3 class="text-dark" style="font-weight:400">Users</h3>
+
+                <p></p>
+                
+              </div>
+              <div class="icon">
+                <i class="fa fa-users text-dark" style="font-size:3.2rem"></i>
+              </div>
+              <a href="{{url('all_users')}}" class="small-box-footer" style="background:#dc3545">  <i class="fas fa-arrow-circle-right fa-2x text-dark"></i></a>
+            </div>
+            </a>
+          </div>
         
           <!-- ./col -->
         

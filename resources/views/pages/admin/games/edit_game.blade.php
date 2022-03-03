@@ -419,7 +419,7 @@ $('#round-1-select-tag').on('change', function(){
 
 });
 
-//onchnage of roiund 2 select tag
+//onchange of round 2 select tag
 $('#round-2-select-tag').on('change', function(){
     round_3_selected_questions = $('#round-3-select-tag').val();
     $('#round-3-select-tag').find('option').each(function(){
@@ -459,7 +459,7 @@ $('#round-2-select-tag').on('change', function(){
 
 });
 
-//onchnage of roiund 3 select tag
+//onchange of round 3 select tag
 $('#round-3-select-tag').on('change', function(){
     //remove selected question in round 3 select tag from round 1 select tag and round 2 select tag
     round1_selected_questions = $('#round-1-select-tag').val();
