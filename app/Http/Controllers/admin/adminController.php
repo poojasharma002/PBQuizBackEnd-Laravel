@@ -397,4 +397,18 @@ class adminController extends Controller
         $response = User::destroy($request->id);
         return response()->json(['success' => "User Deleted successfully."]);
     }
+
+    public function change_status(Request $request)
+    {
+        $user = User::find($request->id);
+        if ($user->status == '1') {
+            $user->status = '0';
+        } else {
+            $user->status = '1';
+        }
+        
+        $user->save();
+        return redirect(route('all_users'))->with('message', 'User status changed successfully');
+    }
+  
 }

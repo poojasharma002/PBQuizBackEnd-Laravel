@@ -27,8 +27,8 @@ class CreateStatisticsTable extends Migration
             $table->integer('game_won');
             $table->integer('trophy_won');
             $table->integer('star_won');
-            $table->integer('game_date');
-            $table->integer('game_time');
+            $table->string('game_date');
+            $table->string('game_time');
             $table->timestamps();
         });
     }

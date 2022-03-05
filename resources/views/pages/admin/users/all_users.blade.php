@@ -56,7 +56,8 @@
                         <th>User</th>
                         <th>Email</th>
                         <th>Profile</th>
-                        <th>Delete</th>
+                        <th>Status</th>
+                        <!-- <th>Delete</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -66,8 +67,16 @@
                         <td>{{$user->name}}</td>
                         <td>{{$user->email}}</td>
                         <td><img src="{{$user->profile_pic}}"></td>
-                        <td style="width:10%">
-                        <a href="javascript:void(0)" class="btn btn-danger text-light deleteBtn" onclick="deleteFunc(this,{{$user->id}})"> <i class="fa fa-trash" aria-hidden="true"></i> </a></td>
+         
+                        <td>
+                            @if($user->status == 1)
+                            <a href="{{url('/change_status/'.$user->id)}}" class="btn btn-primary" >Active</a>
+                            @else
+                            <a href="{{url('/change_status/'.$user->id)}}" class="btn btn-danger" style="filter:brightness(50%)">Deactive</a>
+                            @endif
+                        </td>
+                        <!-- <td style="width:10%">
+                        <a href="javascript:void(0)" class="btn btn-danger text-light deleteBtn" onclick="deleteFunc(this,{{$user->id}})"> <i class="fa fa-trash" aria-hidden="true"></i> </a></td> -->
                         </td>
                     </tr>
                     @endforeach
@@ -93,6 +102,9 @@
 
 
   <script>
+
+    //active and deactive user
+
 
     function deleteFunc(this_para,id){
       var id = id;

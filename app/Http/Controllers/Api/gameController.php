@@ -202,7 +202,7 @@ class gameController extends Controller
         foreach ($user_ids as $user_id) {
             $leaderboard[] = [
                 'user_id' => $user_id->user_id,
-                'top_scorer_name' => $user_id->user->name,
+                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
                 'score' => statistics::where('user_id', $user_id->user_id)
                     ->sum('total_score')
             ];
@@ -282,7 +282,7 @@ class gameController extends Controller
         foreach ($user_ids as $user_id) {
             $leaderboard[] = [
                 'user_id' => $user_id->user_id,
-                'top_scorer_name' => $user_id->user->name,
+                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
                 'score' => statistics::where('user_id', $user_id->user_id)
                     ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
                     ->sum('total_score')
@@ -350,7 +350,7 @@ class gameController extends Controller
         foreach ($userIds as $user_id) {
             $leaderboard[] = [
                 'user_id' => $user_id->user_id,
-                'top_scorer_name' => $user_id->user->name,
+                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
                 'score' => statistics::where('user_id', $user_id->user_id)
                     ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
                     ->sum('total_score')
@@ -373,11 +373,6 @@ class gameController extends Controller
 
         return response()->json($data)->setStatusCode(200);
     }
-
-
-
-
-
 
     public function insertUserGamePlayedData(GameRequest $request)
     {
@@ -402,7 +397,7 @@ class gameController extends Controller
                         'skipped_question' => $skipped_question,
                         'total_questions' => $request->total_questions,
                         'total_score' => $request->total_score,
-                        'game_won' => $request->game_won,
+                        // 'game_won' => $request->game_won,
                         'trophy_won' => 1,
                         'star_won'=> $star_won,
                         'game_date' => $request->game_date,
@@ -496,4 +491,205 @@ class gameController extends Controller
 
         return response()->json($data)->setStatusCode(200);
     }
+
+    public function getUserRankAlltime(Request $request)
+    {
+        $headerToken = $request->header('Authorization');
+        $user = User::where('token', $headerToken)->first();
+        $current_user_id = $request->user_id;
+
+        $userIds = statistics::distinct()
+            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->get(['user_id']);
+
+        $leaderboard = [];
+        foreach ($userIds as $user_id) {
+            $leaderboard[] = [
+                'user_id' => $user_id->user_id,
+                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                'score' => statistics::where('user_id', $user_id->user_id)
+                    ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                    ->sum('total_score'),
+            ];
+        }  
+        //sort by highest score 
+        usort($leaderboard, function ($a, $b) {
+            return $b['score'] - $a['score'];
+        });
+        //add rank to the leaderboard
+        $i = 1;
+        foreach ($leaderboard as $key => $value) {
+            $leaderboard[$key]['rank'] = $i;
+            $i++;
+        }
+
+        //get the data of the current user
+        $current_user_data = [];
+        foreach ($leaderboard as $key => $value) {
+            if ($value['user_id'] == $current_user_id) {
+                $current_user_data = $value;
+            }
+        }
+        $data = [
+            'success' => true,
+            'data' => $current_user_data,
+            'error' => null,
+            'status' => 200
+        ];
+
+        return response()->json($data)->setStatusCode(200);
+    }
+
+    public function getUserRankWeekly(Request $request)
+    {
+        $headerToken = $request->header('Authorization');
+        $user = User::where('token', $headerToken)->first();
+        $current_user_id = $request->user_id;
+        
+        $userIds = statistics::distinct()
+            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+            ->get(['user_id']);
+
+        $leaderboard = [];
+        foreach ($userIds as $user_id) {
+            $leaderboard[] = [
+                'user_id' => $user_id->user_id,
+                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                'score' => statistics::where('user_id', $user_id->user_id)
+                    ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                    ->sum('total_score'),
+                    'gdfgdf'=>1
+            ];
+        }
+        //sort by highest score
+        usort($leaderboard, function ($a, $b) {
+            return $b['score'] - $a['score'];
+        });
+
+        //add rank to the leaderboard
+        $i = 1;
+        foreach ($leaderboard as $key => $value) {
+            $leaderboard[$key]['rank'] = $i;
+            $i++;
+        }
+
+        //get the data of the current user
+        $current_user_data = [];
+        foreach ($leaderboard as $key => $value) {
+            if ($value['user_id'] == $current_user_id) {
+                $current_user_data = $value;
+            }
+        }
+        $data = [
+            'success' => true,
+            'data' => $current_user_data,
+            'error' => null,
+            'status' => 200
+        ];
+
+        return response()->json($data)->setStatusCode(200);
+
+    }
+
+    public function getUserRankToday(Request $request)
+    {
+        $headerToken = $request->header('Authorization');
+        $user = User::where('token', $headerToken)->first();
+        $current_user_id = $request->user_id;
+
+        $userIds = statistics::distinct()
+            ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
+            ->get(['user_id']);
+
+        $leaderboard = [];
+        foreach ($userIds as $user_id) {
+            $leaderboard[] = [
+                'user_id' => $user_id->user_id,
+                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                'score' => statistics::where('user_id', $user_id->user_id)
+                    ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
+                    ->sum('total_score'),
+            ];
+        }
+
+        //sort by highest score
+        usort($leaderboard, function ($a, $b) {
+            return $b['score'] - $a['score'];
+        });
+
+        //add rank to the leaderboard
+        $i = 1;
+        foreach ($leaderboard as $key => $value) {
+            $leaderboard[$key]['rank'] = $i;
+            $i++;
+        }
+
+        //get the data of the current user
+        $current_user_data = [];
+        foreach ($leaderboard as $key => $value) {
+            if ($value['user_id'] == $current_user_id) {
+                $current_user_data = $value;
+            }
+        }
+        $data = [
+            'success' => true,
+            'data' => $current_user_data,
+            'error' => null,
+            'status' => 200
+        ];
+
+        return response()->json($data)->setStatusCode(200);
+    }
+
+    public function getUserRankMonthly(Request $request)
+    {
+        $headerToken = $request->header('Authorization');
+        $user = User::where('token', $headerToken)->first();
+        $current_user_id = $request->user_id;
+
+        $userIds = statistics::distinct()
+            ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
+            ->get(['user_id']);
+
+        $leaderboard = [];
+        foreach ($userIds as $user_id) {
+            $leaderboard[] = [
+                'user_id' => $user_id->user_id,
+                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                'score' => statistics::where('user_id', $user_id->user_id)
+                    ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
+                    ->sum('total_score'),
+            ];
+        }
+
+        //sort by highest score
+        usort($leaderboard, function ($a, $b) {
+            return $b['score'] - $a['score'];
+        });
+
+        //add rank to the leaderboard
+        $i = 1;
+        foreach ($leaderboard as $key => $value) {
+            $leaderboard[$key]['rank'] = $i;
+            $i++;
+        }
+
+        //get the data of the current user
+        $current_user_data = [];
+        foreach ($leaderboard as $key => $value) {
+            if ($value['user_id'] == $current_user_id) {
+                $current_user_data = $value;
+            }
+        }
+        $data = [
+            'success' => true,
+            'data' => $current_user_data,
+            'error' => null,
+            'status' => 200
+        ];
+
+        return response()->json($data)->setStatusCode(200);
+    }
+
+    
 }

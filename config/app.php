@@ -162,8 +162,8 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
-        'Tymon\JWTAuth\Providers\LaravelServiceProvider',
-        Lcmaquino\GoogleOAuth2\GoogleOAuth2Provider::class,
+        // 'Tymon\JWTAuth\Providers\LaravelServiceProvider',
+        // Lcmaquino\GoogleOAuth2\GoogleOAuth2Provider::class,
 
         /*
          * Package Service Providers...
@@ -235,7 +235,7 @@ return [
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
-        'GoogleAuth' => Lcmaquino\GoogleOAuth2\Facades\GoogleOAuth2::class,
+        // 'GoogleAuth' => Lcmaquino\GoogleOAuth2\Facades\GoogleOAuth2::class,
 
     ],
 

@@ -27,7 +27,11 @@ class VerifyUser
             ];
             return response()->json($data)->setStatusCode(401);
         }else{
-            $user = User::where('token', $headerToken)->first();
+            $user = User::where('token', $headerToken)
+                ->where('role','user')
+                ->where('status',1)
+                ->first();
+
             if (!$user) {
 
                 $data = [

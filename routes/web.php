@@ -95,8 +95,11 @@ Route::get('/all_users', [adminController::class, 'all_users'])
 ->middleware(['auth', 'verified'])
 ->name('all_users');
 
-//delete user
-Route::post('/delete/user', [adminController::class, 'delete_user']);
+//change user status
+Route::get('/change_status/{id}', [adminController::class, 'change_status']);
+
+
+
 
 
 

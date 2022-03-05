@@ -23,7 +23,11 @@ class LoginController extends Controller
             $userEmail =$response["email"];
             $userProfilePic = $response["picture"];
 
-        $userDetails = User::where('email',$userEmail )->first();
+        // $userDetails = User::where('email',$userEmail )->first();
+        $userDetails = User::where('email',$userEmail )
+        ->where('role','user')
+        ->where('status',1)
+        ->first();
      
 
         if(!$userDetails){
@@ -37,6 +41,7 @@ class LoginController extends Controller
 
             $user_details = [
                 'data' => $userDetails->token,
+                'status' => $user_details->status
             ];
             $data = [
                 'status' => 'success',
@@ -54,6 +59,7 @@ class LoginController extends Controller
 
             $user_details = [
                 'token' => $userDetails->token,
+                'status' => $user_details->status
             ];
             $data = [
                 'status' => 'success',
@@ -66,6 +72,78 @@ class LoginController extends Controller
         }
 
 
+
+    }
+
+    public function facebookLogin(Request $request)
+    {
+        $responseFacebook= Http::get('https://graph.facebook.com/me?access_token=', [
+            'access_token' => $request->access_token
+        ]);
+
+        if(!isset($responseFacebook['error'])){
+            $facebookToken = $request->access_token;
+            $username = $responseFacebook['name'];
+            $userEmail = $request->email;
+            $userProfilePic = $request->profile_pic;
+
+            $userDetails = User::where('email',$userEmail )
+            ->where('role','user')
+            ->where('status',1)
+            ->first();
+           
+            if(!$userDetails){
+                $userDetails = new User();
+                $userDetails->token = $facebookToken;
+                $userDetails->name = $username;
+                $userDetails->email = $userEmail;
+                $userDetails->profile_pic = $userProfilePic;
+                $userDetails->role = "user";
+                $userDetails->save();
+
+                $user_details = [
+                    'data' => $userDetails->token,
+                    'status' => $userDetails->status,
+                    'name' => $userDetails->name,
+                    'email' => $userDetails->email
+                ];
+                $data = [
+                    'status' => 'success',
+                    'message' => 'User Logged In Successfully',
+                    'data' => $user_details,
+                    'error' => null
+                ];
+            }else{
+                $userDetails->profile_pic = $request->profile_pic;
+                $userDetails->token = $facebookToken;
+                $userDetails->save();
+
+                $user_details = [
+                    'token' => $userDetails->token,
+                    'status' => $userDetails->status,
+                    'name' => $userDetails->name,
+                    'email' => $userDetails->email
+                ];
+                $data = [
+                    'status' => 'success',
+                    'message' => 'User Logged In Successfully',
+                    'data' => $user_details,
+                    'error' => null
+                ];
+
+            }
+
+
+        }else{
+            $data = [
+                'status' => 'error',
+                'message' => 'User Not Found',
+                'data' => null,
+                'error' => $responseFacebook['error']['message']
+            ];
+        }
+
+        return response()->json($data, 200);
 
     }
 }

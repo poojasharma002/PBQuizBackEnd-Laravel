@@ -86,3 +86,11 @@ Route::post('/confirm-password', [ConfirmablePasswordController::class, 'store']
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
                 ->middleware('auth')
                 ->name('logout');
+
+/**
+ * 
+ * Login and Register Routes for User 
+ * 
+ */
+
+ Route::post('/user/login', [AuthenticatedSessionController::class, 'store']);
