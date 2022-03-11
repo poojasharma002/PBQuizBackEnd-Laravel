@@ -141,7 +141,6 @@ class gameController extends Controller
         } else {
             $game_name = $game->gamename;
         }
-
         $trophy = [
             'id' => $trophy->id,
             'name' => $trophy->trophy_name,
@@ -223,55 +222,6 @@ class gameController extends Controller
         return response()->json($data)->setStatusCode(200);
     }
 
-    // public function leaderboardWeekly(){
-    //     $topThreeScorer = statistics::distinct()
-    //     ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-    //     ->orderBy('total_score','desc')
-    //     ->limit(3)->get(['user_id','total_score']);
-
-    //     $leaderboard = [];
-    //     foreach($topThreeScorer as $scorer){
-    //         $leaderboard[] = [
-    //             'user_id'=>$scorer->user_id,
-    //             'top_scorer_name'=>$scorer->user->name,
-    //             'total_highest_score'=>$scorer->total_score
-    //         ];
-    //     }
-
-    //     $data = [
-    //         'success'=>true,
-    //         'data'=>$leaderboard,
-    //         'error'=>null,
-    //         'status'=>200
-    //     ];
-    //     return response()->json($data)->setStatusCode(200);
-    // }
-    // public function leaderboardMonthly(){
-
-    //     $topThreeScorer = statistics::distinct()
-    //     ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-    //     ->orderBy('total_score','desc')
-    //     ->limit(3)->get(['user_id','total_score']);
-
-    //     $leaderboard = [];
-    //     foreach($topThreeScorer as $scorer){
-    //         $leaderboard[] = [
-    //             'user_id'=>$scorer->user_id,
-    //             'top_scorer_name'=>$scorer->user->name,
-    //             'score'=>$scorer->total_score
-    //         ];
-    //     }
-
-    //     $data = [
-    //         'success'=>true,
-    //         'data'=>$leaderboard,
-    //         'error'=>null,
-    //         'status'=>200
-    //     ];
-    //     return response()->json($data)->setStatusCode(200);
-    // }
-
-
     public function leaderboardToday()
     {
         $user_ids = statistics::distinct()
@@ -317,7 +267,7 @@ class gameController extends Controller
         foreach ($userIds as $user_id) {
             $leaderboard[] = [
                 'user_id' => $user_id->user_id,
-                'top_scorer_name' => $user_id->user->name,
+                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
                 'score' => statistics::where('user_id', $user_id->user_id)
                     ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
                     ->sum('total_score')
@@ -432,71 +382,141 @@ class gameController extends Controller
                 }
     }
 
+    public function getUserGames(Request $request)
+    {
+        $headerToken = $request->header('Authorization');
+        $user = User::where('token', $headerToken)->first();
+
+        $user_id = $user->id;
+
+        //get all information from statistics table where user_id is unique and total_score is highest
+        $statistics = statistics::where('user_id', $user_id)
+            ->orderBy('total_score', 'desc')
+            ->get()
+            ->unique('game_id');
+
+        $data = [
+            'success' => true,
+            'data' => $statistics,
+            'error' => null,
+            'status' => 200
+        ];
+
+        return response()->json($data)->setStatusCode(200);
+    }
+
     public function getUserTrophies(Request $request)
     {
         $headerToken = $request->header('Authorization');
         $user = User::where('token', $headerToken)->first();
         $user_id = $user->id;
 
-        //check all distinct trophies won by user and return the trophies which has highest total score
-        $trophies = statistics::where('user_id', $user_id)
-            ->distinct()
-            ->get(['trophy_won']);
+        $statistics = statistics::where('user_id', $user_id)
+            ->orderBy('total_score', 'desc')
+            ->get()
+            ->unique('game_id');
 
-        $trophies_won = [];
-        foreach ($trophies as $trophy) {
-            $trophies_won[] = [
-                'trophy_id' => $trophy->trophy_won,
-                'trophy_name' => trophy::where('id', $trophy->trophy_won)->first()->name,
-                'trophy_description' => trophy::where('id', $trophy->trophy_won)->first()->description,
-                'trophy_image' => trophy::where('id', $trophy->trophy_won)->first()->image,
-                'trophy_score' => statistics::where('user_id', $user_id)
-                    ->where('trophy_won', $trophy->trophy_won)
-                    ->sum('total_score')
+        //get trophy details of their respective game
+        $trophies = [];
+        foreach ($statistics as $statistic) {
+            $trophies[] = [
+                'game_id' => $statistic->game_id,
+                'correct_answer' => $statistic->correct_answer,
+                'total_questions' => $statistic->total_questions,
+                'trophy_won' => $statistic->trophy_won,
+                'star_won' => $statistic->star_won,
+                'trophy_id' => game::where('id', $statistic->game_id)->first()->trophy,
+                'trophy_name' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_name,
+                'trophy_image' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_image,
+                'trophy_description' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_description,
+                'trophy_won' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_won
             ];
         }
 
-        
-
-
-        //get the distinct trophies won by the user from the statistics table
-        $trophies = statistics::distinct()
-            ->where('user_id', $user_id)
-            ->get(['trophy_won']);
-
-        $trophies_won = [];
-        foreach ($trophies as $trophy) {
-            $trophies_won[] = $trophy->trophy_won;
-        }
-        //get details about that trophy
-        $trophies_details = trophy::whereIn('id', $trophies_won)->get();
-        //send user details and trophies won in the response
-
-
         $data = [
             'success' => true,
-            'data' => $trophies_details,
+            'data' =>$trophies,
             'error' => null,
             'status' => 200
         ];
 
-        
 
-        // $data = [
-        //     'success' => true,
-        //     'data' => $trophies,
-        //     'error' => null,
-        //     'status' => 200
-        // ];
+
+
+
 
         return response()->json($data)->setStatusCode(200);
     }
 
-    public function getUserRankAlltime(Request $request)
+    public function getUserPlayedStats(Request $request)
     {
         $headerToken = $request->header('Authorization');
         $user = User::where('token', $headerToken)->first();
-        $current_user_id = $request->user_id;
+        $user_id = $user->id;
+
+        //calculate total number of perfect games 
+        $perfect_games = statistics::where('user_id', $user_id)
+            ->where('star_won', 1)
+            ->count();
+
+        //total time each game was played
+        $total_time = statistics::where('user_id', $user_id)
+            ->count('user_id');
+
+        //Total number of consecutive days played (all time)  
+        $total_days = statistics::where('user_id', $user_id)
+            ->where('created_at', '>', Carbon::now()->subDays(1))
+            ->count('user_id');
+
+        //Total number of consecutive days played (current) 
+        $current_days = statistics::where('user_id', $user_id)
+            ->where('created_at', '>', Carbon::now()->subDays(1))
+            ->where('created_at', '<', Carbon::now())
+            ->count('user_id');
+
+        //get the name of game played the most number of times
+        $most_played_game = statistics::where('user_id', $user_id)
+            ->count('user_id');
+        
+
+
+        //count the number of time each game was played
+        $game_played_count = statistics::where('user_id', $user_id)
+            ->groupBy('game_id')
+            ->count('game_id');
+
+            
+        
+
+
+
+        //Completed X number of games of X # of total games available  
+        $completed_games = statistics::where('user_id', $user_id)
+            ->where('star_won', 1)
+            ->count('star_won');
+        
+        $data = [
+            'success' => true,
+            'data' => [
+                'perfect_games' => $perfect_games,
+                'total_time' => $total_time,
+                'total_days' => $total_days,
+                'current_days' => $current_days,
+                'most_played_game' => $most_played_game,
+                'completed_games' => $completed_games
+            ],
+            'error' => null,
+            'status' => 200
+        ];
+
+        return response()->json($data)->setStatusCode(200);
+    }
+
+    public function getUserRankAlltime(Request $request,$id)
+    {
+        $headerToken = $request->header('Authorization');
+        $user = User::where('token', $headerToken)->first();
+        $current_user_id = $id;
 
         $userIds = statistics::distinct()
             ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
@@ -540,11 +560,11 @@ class gameController extends Controller
         return response()->json($data)->setStatusCode(200);
     }
 
-    public function getUserRankWeekly(Request $request)
+    public function getUserRankWeekly(Request $request,$id)
     {
         $headerToken = $request->header('Authorization');
         $user = User::where('token', $headerToken)->first();
-        $current_user_id = $request->user_id;
+        $current_user_id = $id;
         
         $userIds = statistics::distinct()
             ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
@@ -591,11 +611,11 @@ class gameController extends Controller
 
     }
 
-    public function getUserRankToday(Request $request)
+    public function getUserRankToday(Request $request,$id)
     {
         $headerToken = $request->header('Authorization');
         $user = User::where('token', $headerToken)->first();
-        $current_user_id = $request->user_id;
+        $current_user_id = $id;
 
         $userIds = statistics::distinct()
             ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
@@ -641,11 +661,11 @@ class gameController extends Controller
         return response()->json($data)->setStatusCode(200);
     }
 
-    public function getUserRankMonthly(Request $request)
+    public function getUserRankMonthly(Request $request,$id)
     {
         $headerToken = $request->header('Authorization');
         $user = User::where('token', $headerToken)->first();
-        $current_user_id = $request->user_id;
+        $current_user_id = $id;
 
         $userIds = statistics::distinct()
             ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])

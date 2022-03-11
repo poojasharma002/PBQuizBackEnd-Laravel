@@ -3,10 +3,13 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
  use App\Http\Controllers\Api\gameController;
+ use App\Http\Controllers\Api\SignupLoginController;
+ use App\Http\Controllers\Api\UserController;
  use Laravel\Socialite\Facades\Socialite;
  use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Oauth\LoginController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -65,32 +68,77 @@ Route::get('/leaderboardMonthly',[gameController::class,'leaderboardMonthly']);
 
 Route::get('/leaderboardToday',[gameController::class,'leaderboardToday']);
 
+Route::middleware(['VerifyUser'])->group(function () {
+
+    Route::post('/userGamePlayedData',[gameController::class,'insertUserGamePlayedData']);
+
+    /**
+     * 
+     * Statistics API Routes
+     * 
+     */
+
+    Route::get('/user_trophies/{id}',[gameController::class,'getUserTrophies']);  
+    
+    Route::get('/user_games/{id}',[gameController::class,'getUserGames']);
+
+    Route::get('/user_played_stats/{id}',[gameController::class,'getUserPlayedStats']);
+
+    //player rank in leaderboard 
+
+    Route::get('/leaderboardUserRankAlltime/{user_id}',[gameController::class,'getUserRankAlltime']);
+
+    Route::get('/leaderboardUserRankWeekly/{user_id}',[gameController::class,'getUserRankWeekly']);
+
+    Route::get('/leaderboardUserRankMonthly/{user_id}',[gameController::class,'getUserRankMonthly']);
+
+    Route::get('/leaderboardUserRankToday/{user_id}',[gameController::class,'getUserRankToday']);
+
+    // user profile dashboard
+
+    Route::get('/userProfile/{id}', [UserController::class, 'userProfile']);   
+    
+    //change user profile picture
+    Route::post('/changeProfilePicture', [UserController::class, 'changeProfilePicture']);
+
+    //change user password
+    Route::post('/changePassword', [UserController::class, 'changePassword']);
+});
 
 
 
-
-
+/**
+ * 
+ * Google and Facebook Oauth Routes
+ * 
+ */
 Route::middleware(['checkHeaderToken'])->group(function () {
     Route::post('/googleOauthLogin', [LoginController::class, 'googleLogin']);
 });
 
-Route::get('/facebookOauthLogin', [LoginController::class, 'facebookLogin']);
+Route::post('/facebookOauthLogin', [LoginController::class, 'facebookLogin']);
 
 
-Route::middleware(['VerifyUser'])->group(function () {
-    Route::post('/userGamePlayedData',[gameController::class,'insertUserGamePlayedData']);
-    //api to get trophies of a particular user id 
-    Route::get('/user_trophies/{id}',[gameController::class,'getUserTrophies']);    
+/**
+ * 
+ * Registration and Login Routes(email based)
+ * 
+ */
 
-    //get rank of a user in leaderboard in alltime
-    Route::post('/leaderboardUserRankAlltime',[gameController::class,'getUserRankAlltime']);
-    //get rank of a user in leaderboard in weekly
-    Route::post('/leaderboardUserRankWeekly',[gameController::class,'getUserRankWeekly']);
-    //get rank of a user in leaderboard in monthly
-    Route::post('/leaderboardUserRankMonthly',[gameController::class,'getUserRankMonthly']);
-    //get rank of a user in leaderboard in today
-    Route::post('/leaderboardUserRankToday',[gameController::class,'getUserRankToday']);
-});
+Route::post('/registerEmail', [SignupLoginController::class, 'register']);
+
+Route::post('/loginEmail', [SignupLoginController::class, 'login']);
+
+//forget password 
+
+Route::post('/forgetPasswordLink', [SignupLoginController::class, 'forgetPassword']);
+
+//change password 
+
+Route::post('/resetPassword', [SignupLoginController::class, 'resetPassword']);
+
+
+
 
 
 

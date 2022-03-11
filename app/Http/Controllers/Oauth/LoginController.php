@@ -40,8 +40,9 @@ class LoginController extends Controller
             $userDetails->save();
 
             $user_details = [
+                'user_id'=>$userDetails->id,
                 'data' => $userDetails->token,
-                'status' => $user_details->status
+                'status' => $userDetails->status
             ];
             $data = [
                 'status' => 'success',
@@ -58,8 +59,9 @@ class LoginController extends Controller
             $userDetails->save();
 
             $user_details = [
+                'user_id'=>$userDetails->id,
                 'token' => $userDetails->token,
-                'status' => $user_details->status
+                'status' => $userDetails->status
             ];
             $data = [
                 'status' => 'success',
@@ -102,6 +104,7 @@ class LoginController extends Controller
                 $userDetails->save();
 
                 $user_details = [
+                    'user_id'=>$userDetails->id,
                     'data' => $userDetails->token,
                     'status' => $userDetails->status,
                     'name' => $userDetails->name,
@@ -119,6 +122,7 @@ class LoginController extends Controller
                 $userDetails->save();
 
                 $user_details = [
+                    'user_id'=>$userDetails->id,
                     'token' => $userDetails->token,
                     'status' => $userDetails->status,
                     'name' => $userDetails->name,
@@ -146,6 +150,7 @@ class LoginController extends Controller
         return response()->json($data, 200);
 
     }
+
 }
 ?>
 

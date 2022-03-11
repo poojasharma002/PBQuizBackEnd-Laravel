@@ -37,7 +37,8 @@ class GameResource extends JsonResource
             'time_down_video_snippet'=> $this->time_down_video_snippet,
             'round_1_question'=> $this->getRoundQuestions($this->round_1_questions),
             'round_2_question'=> $this->getRoundQuestions($this->round_2_questions),
-            'round_3_question'=> $this->getRoundQuestions($this->round_3_questions)
+            'round_3_question'=> $this->getRoundQuestions($this->round_3_questions),
+            'trophy'=>$this->trophy,
 
 
         ];

@@ -24,7 +24,7 @@ class CreateStatisticsTable extends Migration
             $table->integer('skipped_question');
             $table->integer('total_questions');
             $table->integer('total_score');
-            $table->integer('game_won');
+            // $table->integer('game_won');
             $table->integer('trophy_won');
             $table->integer('star_won');
             $table->string('game_date');

@@ -31,7 +31,6 @@ class GameRequest extends FormRequest
             // 'skipped_answer' => 'required|integer',
             'total_score' => 'required|integer',
             'total_questions' => 'required|integer',
-            'game_won' => 'required|boolean',
             'game_date' => 'required|date',
             'game_time' => 'required|string',
         ];
