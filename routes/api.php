@@ -82,7 +82,7 @@ Route::middleware(['VerifyUser'])->group(function () {
     
     Route::get('/user_games/{id}',[gameController::class,'getUserGames']);
 
-    Route::get('/user_played_stats/{id}',[gameController::class,'getUserPlayedStats']);
+    Route::get('/particular_user_played_stats',[gameController::class,'getUserPlayedStats']);
 
     //player rank in leaderboard 
 
@@ -96,13 +96,17 @@ Route::middleware(['VerifyUser'])->group(function () {
 
     // user profile dashboard
 
-    Route::get('/userProfile/{id}', [UserController::class, 'userProfile']);   
+    Route::get('/userProfile', [UserController::class, 'userProfile']);   
     
     //change user profile picture
     Route::post('/changeProfilePicture', [UserController::class, 'changeProfilePicture']);
 
     //change user password
     Route::post('/changePassword', [UserController::class, 'changePassword']);
+
+    //live-score api
+
+    Route::post('/live-score',[gameController::class,'getLiveScore']);
 });
 
 
@@ -136,6 +140,15 @@ Route::post('/forgetPasswordLink', [SignupLoginController::class, 'forgetPasswor
 //change password 
 
 Route::post('/resetPassword', [SignupLoginController::class, 'resetPassword']);
+
+Route::get('/all_user_played_stats',[gameController::class,'getAllUserPlayedStats']);
+
+//get featured game
+
+Route::get('/get_featured_game',[gameController::class,'getFeaturedGame']);
+
+
+
 
 
 

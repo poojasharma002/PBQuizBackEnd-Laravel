@@ -10,6 +10,7 @@ use App\Models\question;
 use App\Models\settings;
 use App\Models\trophy;
 use App\Models\User;
+use App\Models\LiveScore;
 use DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -454,6 +455,37 @@ class gameController extends Controller
         $user = User::where('token', $headerToken)->first();
         $user_id = $user->id;
 
+        //total number of games played
+        $total_games_played = statistics::where('user_id', $user_id)->count();
+
+        //total number of star won in unique games
+        $total_star_won = statistics::where('user_id', $user_id)->where('star_won', 1)->count();
+
+        //total number of correct_answer 
+        $total_correct_answer = statistics::where('user_id', $user_id)->sum('correct_answer');
+
+        //total number of incorrect_answer
+        $total_incorrect_answer = statistics::where('user_id', $user_id)->sum('incorrect_answer');
+
+        //total number of total_score
+        $total_score = statistics::where('user_id', $user_id)->sum('total_score');
+
+        //total questions answered by user correct and incorrect
+        $total_questions = $total_correct_answer + $total_incorrect_answer;
+
+
+
+
+        //find the game_id which is coming most frequently from statistics table
+        $statistics = statistics::select('game_id', DB::raw("count(*) as c"))
+            ->where('user_id','=',$user_id)
+            ->groupBy('game_id')
+            ->get();
+            $game_id = $statistics[0]['game_id'];
+
+            $mostPlayedGame = game::where('id', $game_id)->first()->gamename;
+
+
         //calculate total number of perfect games 
         $perfect_games = statistics::where('user_id', $user_id)
             ->where('star_won', 1)
@@ -474,36 +506,32 @@ class gameController extends Controller
             ->where('created_at', '<', Carbon::now())
             ->count('user_id');
 
-        //get the name of game played the most number of times
-        $most_played_game = statistics::where('user_id', $user_id)
-            ->count('user_id');
+
+        $total_games = game::count();
         
-
-
-        //count the number of time each game was played
-        $game_played_count = statistics::where('user_id', $user_id)
-            ->groupBy('game_id')
-            ->count('game_id');
-
-            
-        
-
-
-
-        //Completed X number of games of X # of total games available  
-        $completed_games = statistics::where('user_id', $user_id)
+        //calculate the games completed by user from statistics table where star_won is 1
+        $games_completed = statistics::where('user_id', $user_id)
+            ->distinct('game_id')
             ->where('star_won', 1)
-            ->count('star_won');
+            ->count();
+
         
         $data = [
             'success' => true,
             'data' => [
+                'total_games_played' => $total_games_played,
+                'total_star_won' => $total_star_won,
+                'total_correct_answer' => $total_correct_answer,
+                'total_incorrect_answer' => $total_incorrect_answer,
+                'total_score' => $total_score,
+                'total_questions_answer' => $total_questions,
                 'perfect_games' => $perfect_games,
                 'total_time' => $total_time,
                 'total_days' => $total_days,
                 'current_days' => $current_days,
-                'most_played_game' => $most_played_game,
-                'completed_games' => $completed_games
+                'most_played_game' => $mostPlayedGame,
+                'games_completed' => $games_completed,
+                'total_games_available' => $total_games,
             ],
             'error' => null,
             'status' => 200
@@ -511,6 +539,59 @@ class gameController extends Controller
 
         return response()->json($data)->setStatusCode(200);
     }
+
+    public function getAllUserPlayedStats(Request $request)
+    {
+       //get all unique user where role is user 
+        $users = User::where('role', 'user')->get()->unique('id');
+        //get all statistics of each user
+        $statistics = [];
+        foreach ($users as $user) {
+            $statistics[] = [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'total_games_played' => statistics::where('user_id', $user->id)->count(),
+                'total_star_won' => statistics::where('user_id', $user->id)->where('star_won', 1)->count(),
+                'total_correct_answer' => statistics::where('user_id', $user->id)->sum('correct_answer'),
+                'total_incorrect_answer' => statistics::where('user_id', $user->id)->sum('incorrect_answer'),
+                'total_score' => statistics::where('user_id', $user->id)->sum('total_score'),
+                'total_questions_answer' => statistics::where('user_id', $user->id)->sum('correct_answer') + statistics::where('user_id', $user->id)->sum('incorrect_answer'),
+                'perfect_games' => statistics::where('user_id', $user->id)
+                    ->where('star_won', 1)
+                    ->count(),
+                'total_time' => statistics::where('user_id', $user->id)->count('user_id'),
+                'total_days' => statistics::where('user_id', $user->id)
+                    ->where('created_at', '>', Carbon::now()->subDays(1))
+                    ->count('user_id'),
+                'current_days' => statistics::where('user_id', $user->id)
+                    ->where('created_at', '>', Carbon::now()->subDays(1))
+                    ->where('created_at', '<', Carbon::now())
+                    ->count('user_id'),
+                // 'most_played_game' => statistics::select('game_id', DB::raw("count(*) as c"))
+                //     ->where('user_id','=',$user->id)
+                //     ->groupBy('game_id')
+                //     ->get()[0]['game_id'],
+
+                'completed_games' => statistics::where('user_id', $user->id)
+                    ->groupBy('game_id')
+                    ->where('star_won', 1)
+                    ->count('star_won')
+            ];
+        }
+
+        $data = [
+            'success' => true,
+            'data' => $statistics,
+            'error' => null,
+            'status' => 200
+        ];
+
+        return response()->json($data)->setStatusCode(200);
+
+
+    }
+
+
 
     public function getUserRankAlltime(Request $request,$id)
     {
@@ -711,5 +792,90 @@ class gameController extends Controller
         return response()->json($data)->setStatusCode(200);
     }
 
+    public function getLiveScore(Request $request){
+
+        $request->validate([
+            'user_id'=> 'required|integer',
+            'user_name' => 'required|string',
+            'user_email' => 'required|string|email',
+            'live_score' => 'required|integer',
+            'game_id' => 'required|integer',
+        ]);
+
+
+        $user_id = $request->user_id;
+        $user_name = $request->user_name;
+        $user_email = $request->user_email;
+        $live_score = $request->live_score;
+        $game_id = $request->game_id;
+
+        $gameIsAlreadyPlayed = LiveScore::where('game_id', '!=', $game_id )->first();
+        if ($gameIsAlreadyPlayed === null) {
+            
+        $liveScore = LiveScore::updateOrCreate(
+            [
+               'user_id'   => $user_id,
+            ],
+            [
+               'user_name'  => $user_name,
+               'user_email' => $user_email,
+               'live_score' => $live_score,
+               'game_id' => $game_id
+            ],
+        );
+
+        $liveScores = LiveScore::orderBy('live_score', 'desc')->get();
+
+        $data = [
+            'success' => true,
+            'data' => $liveScores,
+            'error' => null,
+            'status' => 200
+        ];
+
+        return response()->json($data)->setStatusCode(200);
+
+        }else{
+            LiveScore::truncate();
+
+            $liveScore = LiveScore::updateOrCreate(
+                [
+                   'user_id'   => $user_id,
+                ],
+                [
+                   'user_name'  => $user_name,
+                   'user_email' => $user_email,
+                   'live_score' => $live_score,
+                   'game_id' => $game_id
+                ],
+            );
+    
+            $liveScores = LiveScore::orderBy('live_score', 'desc')->get();
+    
+            $data = [
+                'success' => true,
+                'data' => $liveScores,
+                'error' => null,
+                'status' => 200
+            ];
+    
+            return response()->json($data)->setStatusCode(200);
+        }
+
+
+    }
+
+    public function getFeaturedGame(Request $request){
+       //get feature game from settings
+         $feature_game = Settings::where('type', 'featured_game')->first();
+            $data = [
+                'success' => true,
+                'data' => $feature_game,
+                'error' => null,
+                'status' => 200
+            ];
+        
+        return response()->json($data)->setStatusCode(200);
+    }
     
 }

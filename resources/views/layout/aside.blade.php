@@ -102,6 +102,15 @@
             </a>
           </li>
 
+          <li  class="nav-item {{ Route::is('select_featured_game') ? 'bg-light' : '' }} ">
+            <a href="{{url('select_featured_game')}}" class="nav-link">
+              <i class="nav-icon fa fa-plus nav-item {{ Route::is('select_featured_game') ? 'text-primary' : 'text-white' }} "></i>
+              <p class="nav-item {{ Route::is('select_featured_game') ? 'text-primary' : 'text-white' }} ">
+              Select Featured game
+              </p>
+            </a>
+          </li>
+
             </ul>
           </li>
      

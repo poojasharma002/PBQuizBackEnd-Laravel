@@ -308,4 +308,43 @@ class settingsController extends Controller
         // trophy::find($request->id)->update(['deleted' => 1]);
         // return response()->json(['success' => 'Trophy deleted successfully']);
     }
+
+    public function select_featured_game(){
+        $games = game::where('deleted', 0)->where('gametype','Single Player')->get();
+        //get featured game if exist
+        $featured_game = settings::where('type', 'featured_game')->first();
+        if($featured_game){
+            $featured_game_id = $featured_game->name;
+        }
+        else{
+            $featured_game_id = 0;
+        }
+
+        $data = [
+            'games' => $games,
+            'featured_game_id' => $featured_game_id
+        ];
+        
+        return view('pages.admin.setting.select_featured_game', $data);
+    }
+
+    public function store_featured_game(Request $request){
+        $this->validate(request(), [
+            'featured_game' => 'required',
+        ]);
+
+        //INSERT OR UPDATE FEATURED GAME
+        $setting = settings::where('type', 'featured_game')->first();
+        if($setting){
+            $setting->name = $request->featured_game;
+            $setting->save();
+        }
+        else{
+            $setting = new settings;
+            $setting->type = "featured_game";
+            $setting->name = $request->featured_game;
+            $setting->save();
+        }
+        return redirect()->back()->with('success', 'Featured game selected sucessfully.');;
+    }
 }

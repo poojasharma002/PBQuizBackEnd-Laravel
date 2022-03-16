@@ -66,7 +66,7 @@
                         <td style="width:5%">{{$loop->iteration}}</td>
                         <td>{{$user->name}}</td>
                         <td>{{$user->email}}</td>
-                        <td><img src="{{$user->profile_pic}}"></td>
+                        <td ><img style="width:100px" src="{{$user->profile_pic}}"></td>
          
                         <td>
                             @if($user->status == 1)

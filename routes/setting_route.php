@@ -88,4 +88,18 @@ Route::post('/delete_trophy', [settingsController::class, 'delete_trophy'])
                 ->middleware(['auth', 'verified'])
                 ->name('destroy_trophy');
 
+/**
+ * 
+ *  Select Featured Game Routes
+ * 
+ */
+
+ Route::get('/select_featured_game', [settingsController::class, 'select_featured_game'])
+                ->middleware(['auth', 'verified'])
+                ->name('select_featured_game');
+
+Route::post('/select_featured_game', [settingsController::class, 'store_featured_game'])
+                ->middleware(['auth', 'verified'])
+                ->name('store_featured_game');
+
 ?>
