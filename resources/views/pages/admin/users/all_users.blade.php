@@ -13,7 +13,7 @@
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Home</a></li>
               <li class="breadcrumb-item active">All <i class="fa fa-user-secret" aria-hidden="true"></i></li>
             </ol>
    
@@ -22,7 +22,7 @@
         </div><!-- /.row -->
 
         <span class="m-0" style="font-size:2rem">All Users</span>  
-        <!-- <span class=" float-sm-right">  <a href="{{url('add_user')}}" class="py-3 btn btn-primary mt-3"><i class="fa fa-plus" aria-hidden="true"></i> Add user</a></span> -->
+
       </div><!-- /.container-fluid -->
     </div>
     <!-- /.content-header -->
@@ -48,27 +48,31 @@
       <div class="container-fluid">
         <div class="row">
           <!-- left column -->
-          <div class="col-md-12">
+          <div class="col-md-12" style="overflow-x : auto;">
           <table class="table table-bordered" id="all-users-table">
                 <thead>
                     <tr>
-                        <th >S.No</th>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Profile</th>
-                        <th>Status</th>
+                        <th  class="text-center">S.No</th>
+                        <th class="text-center">User</th>
+                        <th class="text-center">Email</th>
+                        <th class="text-center">Profile</th>
+                        <th class="text-center">Status</th>
                         <!-- <th>Delete</th> -->
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($data as $user)
                     <tr>
-                        <td style="width:5%">{{$loop->iteration}}</td>
-                        <td>{{$user->name}}</td>
-                        <td>{{$user->email}}</td>
-                        <td ><img style="width:100px" src="{{$user->profile_pic}}"></td>
+                        <td  class="text-center" style="vertical-align: middle;">{{$loop->iteration}}</td>
+                        <td class="text-center" style="vertical-align: middle;">{{$user->name}}</td>
+                        <td class="text-center" style="vertical-align: middle;">{{$user->email}}</td>
+                        @if($user->profile_pic == NULL)
+                          <td class="text-center" style="vertical-align: middle;"><img style="width:100px" src="{{asset('assets/images/avatar.png')}}"></td>
+                        @else
+                        <td  class="text-center" style="vertical-align: middle;"><img style="width:100px" src="{{$user->profile_pic}}"></td>
+                        @endif
          
-                        <td>
+                        <td class="text-center" style="vertical-align: middle;">
                             @if($user->status == 1)
                             <a href="{{url('/change_status/'.$user->id)}}" class="btn btn-primary" >Active</a>
                             @else
@@ -136,7 +140,9 @@
 
     // add data table 
     $(document).ready(function() {
-    $('#all-users-table').DataTable();
+    $('#all-users-table').DataTable({
+      // "sScrollX": '100%'
+    });
     } 
     );
 

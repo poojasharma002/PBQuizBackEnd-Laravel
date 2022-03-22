@@ -57,30 +57,42 @@ class SignupLoginController extends Controller
                 'status' => 401
             ], 401);
         }else{
-            if (Hash::check($request->password, $user->password)) {
-            
-                //generate random string for token
-                $token = Str::random(211);
-                $user->token = $token;
-                $user->save();
-    
-                $data = [
-                    'success' => true,
-                    'message' => 'User Logged In Successfully',
-                    'data' => $user,
-                    'error' => null,
-                    'status' => 200
-                ];
-    
-                return response()->json([ $data], 200);
-            } else {
+
+            //check if user is active
+            if($user->status == 0){
                 return response()->json([
                     'success' => false,
                     'data' => null,
-                    'error' => 'Password is incorrect.',
+                    'error' => 'User is deactivated.', 
                     'status' => 401
                 ], 401);
+            }else{
+                if (Hash::check($request->password, $user->password)) {
+            
+                    //generate random string for token
+                    $token = Str::random(211);
+                    $user->token = $token;
+                    $user->save();
+        
+                    $data = [
+                        'success' => true,
+                        'message' => 'User Logged In Successfully',
+                        'data' => $user,
+                        'error' => null,
+                        'status' => 200
+                    ];
+        
+                    return response()->json([ $data], 200);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'data' => null,
+                        'error' => 'Password is incorrect.',
+                        'status' => 401
+                    ], 401);
+                }
             }
+           
         }
 
     

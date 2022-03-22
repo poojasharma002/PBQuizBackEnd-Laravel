@@ -1,7 +1,8 @@
 @include('layout.header')
 
+
 <body class="hold-transition login-page">
-<div class="login-box" style="width:500px;  "> 
+<div class="login-box" > 
   <div class="login-logo" style="margin-bottom:70px">
  <img src="{{asset('assets/images/The-PB-Network-Logo.png')}}" alt="logo" width="60">
     <a href="#"><b style="color:#F5620D"></b> Quiz Portal </a>

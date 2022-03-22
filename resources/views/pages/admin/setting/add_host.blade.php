@@ -132,7 +132,7 @@
                         
                         <div class="form-group">
                             <label for="Host_name">Host Name</label>
-                            <input type="text" class="form-control" id="host_name_edit" name="host_name_edit" placeholder="Enter Host Name" >
+                            <input type="text" class="form-control" id="host_name_edit" name="host_name_edit" placeholder="Enter Host Name" required >
                         </div>
                       </div>
 
@@ -161,6 +161,14 @@ function addFunc(elem){
   //disable enter button
 
     var host_name = $('#host_name').val();
+
+    if(host_name === "" ){
+      swal({
+          title: "Please Enter Host Name",
+          icon: "warning",
+          dangerMode: true,
+        })
+    }
     var url = "{{url('add_host') }}";
     $.ajax({
         url: url,
@@ -186,12 +194,18 @@ function addFunc(elem){
 }
 
 function editFunc(this_para,id){
+
     var host_name = $(this_para).closest('tr').find('td:eq(1)').text();
+
     $('#host_name_edit').val(host_name);
 //on click of update-btn update the Host name in the database
     $('#update-btn').click(function(){
 
         var host_name_edit = $('#host_name_edit').val();
+        if(host_name_edit == ''){
+            swal("Please Enter Host Name",'','error');
+            return false;
+        }
         $.ajax({
             url: "{{url('edit_host') }}",
             type: 'PUT',

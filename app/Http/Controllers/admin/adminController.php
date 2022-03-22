@@ -177,6 +177,7 @@ class adminController extends Controller
             'gametype' => $request->input('gametype'),
             'schedule_date' => $schedule_date,
             'schedule_time' => $schedule_time,
+            'game_start_time' => $schedule_date . ' ' . $schedule_time,
             'level' => $request->input('level'),
             'tag' => serialize($request->input('tag')),
             'host' => $request->input('host'),

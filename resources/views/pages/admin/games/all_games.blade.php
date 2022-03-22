@@ -22,7 +22,7 @@
         </div><!-- /.row -->
 
         <span class="m-0" style="font-size:2rem">All Games</span>  
-        <span class=" float-sm-right">  <a href="{{url('create_game')}}" class="py-3 btn btn-primary mt-3"><i class="fa fa-plus" aria-hidden="true"></i> Add Games</a></span>
+        <span class=" float-sm-right">  <a href="{{url('create_game')}}" class="py-3 btn btn-primary mt-3 float-right"><i class="fa fa-plus" aria-hidden="true"></i> Add Games</a></span>
       </div><!-- /.container-fluid -->
     </div>
     <!-- /.content-header -->
@@ -46,7 +46,7 @@
       <div class="container-fluid">
         <div class="row">
           <!-- left column -->
-          <div class="col-md-12">
+          <div class="col-md-12" style="overflow-x : auto;">
                 <table class="table table-bordered" id="all-games-table">
                         <thead>
                             <tr>
@@ -135,7 +135,9 @@ function deleteFunc(this_para,id){
 
 // add data table 
 $(document).ready(function() {
-  $('#all-games-table').DataTable();
+  $('#all-games-table').DataTable({
+    // "sScrollX": '100%'
+  });
   } 
 );
 

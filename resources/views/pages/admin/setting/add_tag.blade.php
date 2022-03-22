@@ -55,7 +55,7 @@
                         
                         <div class="form-group">
                             <label for="tag_name">Tag Name</label>
-                            <input type="text" class="form-control" id="tag_name" name="tag_name" placeholder="Enter Tag Name">
+                            <input type="text" class="form-control" id="tag_name" name="tag_name" placeholder="Enter Tag Name" required>
                         </div>  
 
                         <div class="card-footer">
@@ -150,7 +150,17 @@
   window.addEventListener('keydown',function(e){if(e.keyIdentifier=='U+000A'||e.keyIdentifier=='Enter'||e.keyCode==13){if(e.target.nodeName=='INPUT'&&e.target.type=='text'){e.preventDefault();return false;}}},true);
     //addFunc 
 function addFunc(elem){
+
+
     var tag_name = $('#tag_name').val();
+
+    if(tag_name === "" ){
+      swal({
+          title: "Please Enter Tag",
+          icon: "warning",
+          dangerMode: true,
+        })
+    }
     var url = "{{url('add_tag') }}";
     $.ajax({
         url: url,
@@ -184,6 +194,11 @@ function editFunc(this_para,id){
 //on click of update-btn update the tag name in the database
 $('#update-btn').click(function(e){
     var tag_name_edit = $('#tag_name_edit').val();
+
+    if(tag_name_edit == ''){
+            swal("Please Enter Host Name",'','error');
+            return false;
+        }
     $.ajax({
         url: "{{url('edit_tag')}}",
         type: 'PUT',

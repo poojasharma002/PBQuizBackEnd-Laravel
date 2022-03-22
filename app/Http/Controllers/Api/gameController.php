@@ -85,21 +85,35 @@ class gameController extends Controller
 
     public function getMultiPlayerGame()
     {
-        //get games which are published and not deleted and game type is multi player order by schedule_date and schedule_time
-        $games = game::where('published', 1)->where('deleted', 0)->where('gametype', 'Multi Player')
-            ->orderBy('schedule_date', 'asc')->orderBy('schedule_time', 'asc')->get();
+       //get games which are published and not deleted and order and game type is multi player and game_start_time is greater than current time
+       $games = game::where('published', 1)->where('deleted', 0)->where('gametype', 'Multi Player')
+       ->where('schedule_date', '>=', Carbon::now()->format('Y-m-d'))
+       // ->where('schedule_time', '<', Carbon::now()->format('H:i:s'))
+       ->orderBy('schedule_date', 'asc')
+       ->orderBy('schedule_time', 'asc')
+       ->get();
 
+        // $games = game::where('published', 1)->where('deleted', 0)->where('gametype', 'Multi Player')
+        // ->where('game_start_time', '>', Carbon::now())->get();
 
+        // dd($games[0]->game_start_time , Carbon::now());
 
-        foreach ($games as $game) {
-            $games_details[] = [
-                'id' => $game->id,
-                'name' => $game->gamename,
-                'image' => $game->game_image,
-                'schedule_time' => $game->schedule_time,
-                'schedule_date' => $game->schedule_date
-            ];
+        if(count($games) >= 1)
+        {
+            foreach ($games as $game) {
+                $games_details[] = [
+                    'id' => $game->id,
+                    'name' => $game->gamename,
+                    'image' => $game->game_image,
+                    'schedule_time' => $game->schedule_time,
+                    'schedule_date' => $game->schedule_date
+                ];
+            }
+        }else{
+            $games_details = "No Multiplayer games available";
         }
+
+       
 
         $data = [
             'success' => true,
@@ -390,15 +404,18 @@ class gameController extends Controller
 
         $user_id = $user->id;
 
+
         //get all information from statistics table where user_id is unique and total_score is highest
-        $statistics = statistics::where('user_id', $user_id)
-            ->orderBy('total_score', 'desc')
-            ->get()
-            ->unique('game_id');
+        $statistics = statistics::select('game_id','user_id','correct_answer','incorrect_answer','total_questions','total_score','trophy_won','star_won')
+        ->where('user_id', $user_id)
+        ->orderBy('total_score', 'desc')
+        ->get()
+        ->unique('game_id');
+            
 
         $data = [
             'success' => true,
-            'data' => $statistics,
+            'data' => $statistics->values(),
             'error' => null,
             'status' => 200
         ];
@@ -412,10 +429,16 @@ class gameController extends Controller
         $user = User::where('token', $headerToken)->first();
         $user_id = $user->id;
 
-        $statistics = statistics::where('user_id', $user_id)
+        $statistics = statistics::select('game_id','user_id','correct_answer','incorrect_answer','total_questions','total_score','trophy_won','star_won')
+            ->where('user_id', $user_id)
             ->orderBy('total_score', 'desc')
             ->get()
             ->unique('game_id');
+
+        // $statistics = statistics::where('user_id', $user_id)
+        //     ->orderBy('total_score', 'desc')
+        //     ->get()
+        //     ->unique('game_id');
 
         //get trophy details of their respective game
         $trophies = [];
@@ -427,10 +450,10 @@ class gameController extends Controller
                 'trophy_won' => $statistic->trophy_won,
                 'star_won' => $statistic->star_won,
                 'trophy_id' => game::where('id', $statistic->game_id)->first()->trophy,
-                'trophy_name' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_name,
-                'trophy_image' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_image,
-                'trophy_description' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_description,
-                'trophy_won' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_won
+                // 'trophy_name' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_name,
+                // 'trophy_image' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_image,
+                // 'trophy_description' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_description,
+                // 'trophy_won' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_won
             ];
         }
 
@@ -464,6 +487,7 @@ class gameController extends Controller
         //total number of correct_answer 
         $total_correct_answer = statistics::where('user_id', $user_id)->sum('correct_answer');
 
+
         //total number of incorrect_answer
         $total_incorrect_answer = statistics::where('user_id', $user_id)->sum('incorrect_answer');
 
@@ -481,9 +505,14 @@ class gameController extends Controller
             ->where('user_id','=',$user_id)
             ->groupBy('game_id')
             ->get();
-            $game_id = $statistics[0]['game_id'];
 
+        if(count($statistics) >0 ){
+            $game_id = $statistics[0]['game_id'];
             $mostPlayedGame = game::where('id', $game_id)->first()->gamename;
+        }else{
+            $mostPlayedGame = 0;
+        }
+         
 
 
         //calculate total number of perfect games 
@@ -600,7 +629,6 @@ class gameController extends Controller
         $current_user_id = $id;
 
         $userIds = statistics::distinct()
-            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->get(['user_id']);
 
         $leaderboard = [];
@@ -609,7 +637,6 @@ class gameController extends Controller
                 'user_id' => $user_id->user_id,
                 'top_scorer_name' => explode(' ', $user_id->user->name)[0],
                 'score' => statistics::where('user_id', $user_id->user_id)
-                    ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
                     ->sum('total_score'),
             ];
         }  
@@ -630,6 +657,9 @@ class gameController extends Controller
             if ($value['user_id'] == $current_user_id) {
                 $current_user_data = $value;
             }
+        }
+        if(count($current_user_data) == 0){
+            $current_user_data = "No Rank Available";
         }
         $data = [
             'success' => true,
@@ -680,6 +710,9 @@ class gameController extends Controller
             if ($value['user_id'] == $current_user_id) {
                 $current_user_data = $value;
             }
+        }
+        if(count($current_user_data) == 0){
+            $current_user_data = "No Rank Available";
         }
         $data = [
             'success' => true,
@@ -732,6 +765,9 @@ class gameController extends Controller
                 $current_user_data = $value;
             }
         }
+        if(count($current_user_data) == 0){
+            $current_user_data = "No Rank Available";
+        }
         $data = [
             'success' => true,
             'data' => $current_user_data,
@@ -781,6 +817,9 @@ class gameController extends Controller
             if ($value['user_id'] == $current_user_id) {
                 $current_user_data = $value;
             }
+        }
+        if(count($current_user_data) == 0){
+            $current_user_data = "No Rank Available";
         }
         $data = [
             'success' => true,

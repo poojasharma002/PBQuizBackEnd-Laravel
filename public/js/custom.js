@@ -9,12 +9,12 @@ var current_fs, next_fs, previous_fs; //fieldsets
 var opacity;
 
 $(".next").click(function(){
-//check if fields are not empty
+
 if($("#gamename").val() == ""){
   swal("Please enter a game name", "", "error");
   return false;
 }
-//check if multi-player is selected in gametype field
+
 if($("#gametype").val() == "Multi Player"){
   if($("#schedule_date").val() == ""){
     swal("Please select a date", "", "error");
@@ -34,17 +34,27 @@ if($("#tag").val() == ""){
 
 // if next-btn-2 is clicked
 if($(this).attr('id') == "next-btn-2"){
-  //check if fields are not empty
+
   if($("#host_video_snippet").val() == ""){
     swal("Please enter Host Video Snippet", "", "error");
     return false;
   }
-  //check if game_featured_image is uploaded in the input file field
-  if($("#game_featured_image").val() == ""){
-    swal("Please upload Game Featured Image", "", "error");
+
+  if(!$("#host_video_snippet").val().match(/^(http:\/\/www.|https:\/\/www.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/)){
+    swal("Please enter a valid url", "", "error");
     return false;
   }
-  // check if high_perf_message is not empty
+  if ($('#game_featured_image').length > 0) {
+    if($("#game_featured_image").val() == ""){
+      swal("Please upload Game Featured Image", "", "error");
+      return false;
+      
+    }
+  }
+ 
+
+
+
   if($("#high_perf_message").val() == ""){
     swal("High Performance Message is required", "", "error");
     return false;
@@ -57,20 +67,56 @@ if($(this).attr('id') == "next-btn-2"){
     swal("Please upload Music File", "", "error");
     return false;
   }
+
+
+  if ($('#trophy').length > 0) {
+    if($("#trophy").children().length == 0){
+      swal("All trophies are selected for games.Please add new trophy from (Add trophy) section", "", "error");
+      return false;
+    }
+  }
+
+if ($('#music_file').length > 0) {
+  if($("#music_file").val().split('.').pop().toLowerCase() != "mp3" && $("#music_file").val().split('.').pop().toLowerCase() != "wav" && $("#music_file").val().split('.').pop().toLowerCase() != "ogg"){
+    swal("Please upload a valid audio file", "", "error");
+    return false;
+  }
+}
+
+if ($('#music_file').length > 0) {
+  if($("#music_file").val().length > 10485760){
+    swal("Please upload a audio file of less than 10MB", "", "error");
+    return false;
+  }
+}
+
   if($("#time_down_video_snippet").val() == ""){
     swal("Please enter Time Down video snippet", "", "error");
     return false;
   }
 
+if ($('#time_down_video_snippet').length > 0) {
+  if(!$("#time_down_video_snippet").val().match(/^(http:\/\/www.|https:\/\/www.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/)){
+    swal("Please enter a valid url", "", "error");
+    return false;
+  }}
+
 }
 
 //if submit is clicked
 if($(this).attr('id') == "submit-btn"){
-  //check if fields are not empty
+
   if($("#round1_starting_video_snippet").val() == ""){
     swal("Please enter Round 1 Starting Video Snippet", "", "error");
     return false;
   }
+
+
+  if(!$("#round1_starting_video_snippet").val().match(/^(http:\/\/www.|https:\/\/www.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/)){
+    swal("Please enter a valid url", "", "error");
+    return false;
+  }
+
   if($("#round-1-select-tag").val() == ""){
     swal("Please select round 1 questions", "", "error");
     return false;
@@ -82,6 +128,11 @@ if($(this).attr('id') == "submit-btn"){
 
   if($("#round2_starting_video_snippet").val() == ""){
     swal("Please enter Round 2 Starting Video Snippet", "", "error");
+    return false;
+  }
+
+  if(!$("#round2_starting_video_snippet").val().match(/^(http:\/\/www.|https:\/\/www.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/)){
+    swal("Please enter a valid url", "", "error");
     return false;
   }
   if($("#round-2-select-tag").val() == ""){
@@ -96,6 +147,11 @@ if($(this).attr('id') == "submit-btn"){
     swal("Please enter Round 3 Starting Video Snippet", "", "error");
     return false;
   }
+
+  if(!$("#round3_starting_video_snippet").val().match(/^(http:\/\/www.|https:\/\/www.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/)){
+    swal("Please enter a valid url", "", "error");
+    return false;
+  }
   if($("#round-3-select-tag").val() == ""){
     swal("Please select round 3 questions", "", "error");
     return false;
@@ -104,7 +160,7 @@ if($(this).attr('id') == "submit-btn"){
   //   swal("Please enter Round 3 Video Snippet", "", "error");
   //   return false;
   // }
-  //check if game_featured_image is uploaded in the input file field
+
 }
 
 

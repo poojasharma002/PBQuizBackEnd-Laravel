@@ -60,7 +60,7 @@
                         </div>  
                         <div class="form-group">
                             <label for="trophy_image">Trophy Image</label>
-                            <input type="file" class="form-control" id="trophy_image" name="trophy_image" placeholder="Enter Trophy Image">
+                            <input type="file" class="form-control" id="trophy_image" name="trophy_image" placeholder="Enter Trophy Image" accept="image/*">
                         </div>
                         <div class="form-group">
                             <label for="trophy_desc">Trophy Description</label>
@@ -149,12 +149,12 @@
                         <input type="hidden" name="edit_id" id="edit-id">
                         <div class="form-group">
                             <label for="trophy_name">Trophy Name</label>
-                            <input type="text" class="form-control" id="trophy_name_edit" name="trophy_name_edit" placeholder="Enter Trophy Name" >
+                            <input type="text" class="form-control" id="trophy_name_edit" name="trophy_name_edit" placeholder="Enter Trophy Name" required>
                         </div>
 
                         <div class="form-group">
                             <label for="trophy_image">Trophy Image</label>
-                            <input type="file" class="form-control" id="trophy_image_edit" name="trophy_image_edit" >
+                            <input type="file" class="form-control" id="trophy_image_edit" name="trophy_image_edit" accept="image/*">
                         </div>
 
                         <div class="form-group">
@@ -198,6 +198,32 @@ function editFunc(this_para,id){
 $(document).ready(function() {
   $('#trophy-form').submit(function(e){
       e.preventDefault();
+      var trophy_name = document.getElementById('trophy_name').value;
+      var trophy_name = document.getElementById('trophy_image').value;
+      var trophy_desc = document.getElementById('trophy_desc').value;
+
+      if(trophy_name === '' || trophy_desc === '' || trophy_image === ''){
+        swal({
+              title: "Error!",
+              text: "Please Enter Trophy Details",
+              icon: "error",
+              button: "Ok",
+          });
+      }
+      //check if only image is uploaded or not
+      var file = $('#trophy_image').prop('files')[0];
+      var file_name = file.name;
+      var file_ext = file_name.split('.').pop().toLowerCase();
+      if(file_ext != 'jpg' && file_ext != 'jpeg' && file_ext != 'png' && file_ext != 'gif'){
+          swal({
+              title: "Error!",
+              text: "Please upload image file only!",
+              icon: "error",
+              button: "Ok",
+          });
+          return false;
+      }
+
       var formData = new FormData(this);
       var url = "{{url('add_trophy') }}";
           e.preventDefault();
@@ -236,7 +262,7 @@ $(document).ready(function() {
 
     //get the trophy_name and trophy_image of the edit form
     var trophy_name = $('#trophy_name_edit').val();
-
+    
       var formData = new FormData(this);
 
       var url = "{{url('edit_trophy')}}";

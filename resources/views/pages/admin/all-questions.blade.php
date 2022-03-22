@@ -22,7 +22,7 @@
         </div><!-- /.row -->
 
         <span class="m-0" style="font-size:2rem">All Questions</span>  
-        <span class=" float-sm-right">  <a href="{{url('add_question')}}" class="py-3 btn btn-primary mt-3"><i class="fa fa-plus" aria-hidden="true"></i> Add question</a></span>
+        <span class=" float-sm-right">  <a href="{{url('add_question')}}" class="py-3 btn btn-primary mt-3 float-right"><i class="fa fa-plus" aria-hidden="true"></i> Add question</a></span>
       </div><!-- /.container-fluid -->
     </div>
     <!-- /.content-header -->
@@ -48,7 +48,7 @@
       <div class="container-fluid">
         <div class="row">
           <!-- left column -->
-          <div class="col-md-12">
+          <div class="col-md-12" style="overflow-x : auto;">
           <table class="table table-bordered" id="all-questions-table">
                 <thead>
                     <tr>
@@ -127,7 +127,9 @@
 
     // add data table 
     $(document).ready(function() {
-    $('#all-questions-table').DataTable();
+    $('#all-questions-table').DataTable({
+      // "sScrollX": '100%'
+    });
     } 
     );
 

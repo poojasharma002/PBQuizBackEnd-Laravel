@@ -78,9 +78,9 @@ Route::middleware(['VerifyUser'])->group(function () {
      * 
      */
 
-    Route::get('/user_trophies/{id}',[gameController::class,'getUserTrophies']);  
+    Route::get('/user_trophies',[gameController::class,'getUserTrophies']);  
     
-    Route::get('/user_games/{id}',[gameController::class,'getUserGames']);
+    Route::get('/user_games',[gameController::class,'getUserGames']);
 
     Route::get('/particular_user_played_stats',[gameController::class,'getUserPlayedStats']);
 
@@ -116,10 +116,10 @@ Route::middleware(['VerifyUser'])->group(function () {
  * Google and Facebook Oauth Routes
  * 
  */
-Route::middleware(['checkHeaderToken'])->group(function () {
-    Route::post('/googleOauthLogin', [LoginController::class, 'googleLogin']);
-});
-
+// Route::middleware(['checkHeaderToken'])->group(function () {
+//     Route::post('/googleOauthLogin', [LoginController::class, 'googleLogin']);
+// });
+Route::post('/googleOauthLogin', [LoginController::class, 'googleLogin']);
 Route::post('/facebookOauthLogin', [LoginController::class, 'facebookLogin']);
 
 

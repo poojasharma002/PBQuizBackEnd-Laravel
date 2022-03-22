@@ -11,6 +11,7 @@
         <div class="image">
           <img src="{{asset('assets/images/The-PB-Network-Logo.png')}}" class="img-circle elevation-2" alt="User Image" style="width:3.1rem">
           <span style="font-size:1.5rem" class="ml-2 text-white"> Admin Portal</h1></span>
+          <i class="fa fa-times " aria-hidden="true" class="float-right " style="color:#fff;position:absolute;right:0" id="menu-cross-icon"></i>
         </div>
         
       </div>
@@ -77,25 +78,25 @@
 
           <li  class="nav-item {{ Route::is('add_host') ? 'bg-light' : '' }} ">
             <a href="{{url('add_host')}}" class="nav-link">
-              <i class="nav-icon fa fa-plus nav-item {{ Route::is('add_host') ? 'text-primary' : 'text-white' }} "></i>
+              <i class="nav-icon fa fa-user nav-item {{ Route::is('add_host') ? 'text-primary' : 'text-white' }} "></i>
               <p class="nav-item {{ Route::is('add_host') ? 'text-primary' : 'text-white' }} ">
               Add host
               </p>
             </a>
           </li>
 
-          <li  class="nav-item {{ Route::is('add_music') ? 'bg-light' : '' }} ">
+          <!-- <li  class="nav-item {{ Route::is('add_music') ? 'bg-light' : '' }} ">
             <a href="{{url('add_music')}}" class="nav-link">
               <i class="nav-icon fa fa-plus nav-item {{ Route::is('add_music') ? 'text-primary' : 'text-white' }} "></i>
               <p class="nav-item {{ Route::is('add_music') ? 'text-primary' : 'text-white' }} ">
               Add Audio
               </p>
             </a>
-          </li>
+          </li> -->
 
           <li  class="nav-item {{ Route::is('add_trophy') ? 'bg-light' : '' }} ">
             <a href="{{url('add_trophy')}}" class="nav-link">
-              <i class="nav-icon fa fa-plus nav-item {{ Route::is('add_trophy') ? 'text-primary' : 'text-white' }} "></i>
+              <i class="nav-icon fa fa-trophy nav-item {{ Route::is('add_trophy') ? 'text-primary' : 'text-white' }} "></i>
               <p class="nav-item {{ Route::is('add_trophy') ? 'text-primary' : 'text-white' }} ">
               Add Trophy
               </p>
@@ -104,7 +105,7 @@
 
           <li  class="nav-item {{ Route::is('select_featured_game') ? 'bg-light' : '' }} ">
             <a href="{{url('select_featured_game')}}" class="nav-link">
-              <i class="nav-icon fa fa-plus nav-item {{ Route::is('select_featured_game') ? 'text-primary' : 'text-white' }} "></i>
+              <i class="nav-icon fas fa-football-ball  nav-item {{ Route::is('select_featured_game') ? 'text-primary' : 'text-white' }} "></i>
               <p class="nav-item {{ Route::is('select_featured_game') ? 'text-primary' : 'text-white' }} ">
               Select Featured game
               </p>

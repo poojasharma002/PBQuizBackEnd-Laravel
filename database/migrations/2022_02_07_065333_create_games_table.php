@@ -19,6 +19,7 @@ class CreateGamesTable extends Migration
             $table->string('gametype');
             $table->date('schedule_date')->nullable();
             $table->time('schedule_time')->nullable();
+            $table->timestamp('game_start_time')->nullable();
             $table->string('level');
             $table->string('tag');
             $table->string('host');

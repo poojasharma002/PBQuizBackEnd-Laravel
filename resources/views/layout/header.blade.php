@@ -33,6 +33,25 @@
   <!-- summernote -->
   <link rel="stylesheet" href="{{asset('assets/plugins/summernote/summernote-bs4.min.css')}}">
     <link rel="stylesheet" href="{{asset('css/custom.css')}}">
+
+<style>
+  @media only screen and (min-width: 780px) {
+  .login-box {
+    width:500px;
+  }
+  .register-box {
+    width:500px;
+  }
+}
+@media only screen and (min-width: 986px) {
+  #menu-cross-icon{
+    display:none;
+  }
+}
+
+
+
+</style>
    
     <script src="{{asset('assets/script/app.js')}}"></script>
 

@@ -13,12 +13,15 @@ class LoginController extends Controller
 {
     public function googleLogin(Request $request)
     {
-        $headerToken = $request->header('Authorization');
-        $response = Http::get('https://www.googleapis.com/oauth2/v3/userinfo?', [
-            'access_token' => $headerToken
+        // $headerToken = $request->header('Authorization');
+        // $response = Http::get('https://www.googleapis.com/oauth2/v3/userinfo?', [
+        //     'access_token' => $headerToken
+        // ]);
+        $response= Http::get('https://www.googleapis.com/oauth2/v3/userinfo?', [
+            'access_token' => $request->access_token
         ]);
 
-            $googleToken = $headerToken;
+            $googleToken = $request->access_token;
             $username= $response["name"];
             $userEmail =$response["email"];
             $userProfilePic = $response["picture"];
@@ -26,8 +29,11 @@ class LoginController extends Controller
         // $userDetails = User::where('email',$userEmail )->first();
         $userDetails = User::where('email',$userEmail )
         ->where('role','user')
-        ->where('status',1)
         ->first();
+
+        //if user status is not active
+
+
      
 
         if(!$userDetails){
@@ -44,14 +50,27 @@ class LoginController extends Controller
                 'data' => $userDetails->token,
                 'status' => $userDetails->status
             ];
-            $data = [
-                'status' => 'success',
-                'message' => 'User Logged In Successfully',
-                'data' => $user_details,
-                'error' => null
-            ];
 
-            return response()->json($data, 200);
+            //check if user is not active
+            if($userDetails->status == 0){
+                return response()->json([
+                    'success' => false,
+                    'data' => null,
+                    'error' => 'User is not active.',
+                    'status' => 401
+                ], 401);
+            }
+            else{
+                $data = [
+                    'status' => 'success',
+                    'message' => 'User Logged In Successfully',
+                    'data' => $user_details,
+                    'error' => null
+                ];
+    
+                return response()->json($data, 200);
+            }
+
 
         }else{
 
@@ -63,14 +82,27 @@ class LoginController extends Controller
                 'token' => $userDetails->token,
                 'status' => $userDetails->status
             ];
-            $data = [
-                'status' => 'success',
-                'message' => 'User Logged In Successfully',
-                'data' => $user_details,
-                'error' => null
-            ];
 
-            return response()->json($data, 200);
+            //check if user is not active
+            if($userDetails->status == 0){
+                return response()->json([
+                    'success' => false,
+                    'data' => null,
+                    'error' => 'User is not active.',
+                    'status' => 401
+                ], 401);
+            }
+            else{
+                $data = [
+                    'status' => 'success',
+                    'message' => 'User Logged In Successfully',
+                    'data' => $user_details,
+                    'error' => null
+                ];
+    
+                return response()->json($data, 200);
+            }
+
         }
 
 
@@ -91,7 +123,6 @@ class LoginController extends Controller
 
             $userDetails = User::where('email',$userEmail )
             ->where('role','user')
-            ->where('status',1)
             ->first();
            
             if(!$userDetails){
@@ -110,12 +141,26 @@ class LoginController extends Controller
                     'name' => $userDetails->name,
                     'email' => $userDetails->email
                 ];
-                $data = [
-                    'status' => 'success',
-                    'message' => 'User Logged In Successfully',
-                    'data' => $user_details,
-                    'error' => null
-                ];
+
+                //check if user is not active
+                if($userDetails->status == 0){
+                    return response()->json([
+                        'success' => false,
+                        'data' => null,
+                        'error' => 'User is not active.',
+                        'status' => 401
+                    ], 401);
+                }
+                else{
+                    $data = [
+                        'status' => 'success',
+                        'message' => 'User Logged In Successfully',
+                        'data' => $user_details,
+                        'error' => null
+                    ];
+        
+                }
+
             }else{
                 $userDetails->profile_pic = $request->profile_pic;
                 $userDetails->token = $facebookToken;
@@ -128,12 +173,27 @@ class LoginController extends Controller
                     'name' => $userDetails->name,
                     'email' => $userDetails->email
                 ];
-                $data = [
-                    'status' => 'success',
-                    'message' => 'User Logged In Successfully',
-                    'data' => $user_details,
-                    'error' => null
-                ];
+
+                //check if user is not active
+                if($userDetails->status == 0){
+                    return response()->json([
+                        'success' => false,
+                        'data' => null,
+                        'error' => 'User is not active.',
+                        'status' => 401
+                    ], 401);
+                }
+                else{
+                    $data = [
+                        'status' => 'success',
+                        'message' => 'User Logged In Successfully',
+                        'data' => $user_details,
+                        'error' => null
+                    ];
+        
+
+                }
+
 
             }
 

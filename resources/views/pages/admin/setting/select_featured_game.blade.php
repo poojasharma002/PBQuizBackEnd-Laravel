@@ -57,7 +57,7 @@
                         
                
                         <select name="featured_game" id="featured_game" class="form-control">
-                            <option value="">Select Featured Game</option>
+                            <option value="" disabled>Select Featured Game</option>
                             @foreach($games as $game)
                             <option value="{{$game->id}}" {{$game->id == $featured_game_id? 'selected' : ''}}>{{$game->gamename}}</option>
                             @endforeach

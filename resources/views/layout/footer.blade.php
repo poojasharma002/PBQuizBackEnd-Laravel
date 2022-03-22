@@ -1,4 +1,12 @@
 
+<script>
+  $(document).ready(function(){
+    document.getElementById("menu-cross-icon").onclick = function(){
+      document.getElementsByTagName("body")[0].classList.add("sidebar-collapse");
+      document.getElementsByTagName("body")[0].classList.remove("sidebar-open");
+    }
+  });
+</script>
 
 <!-- <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.1.min.js"></script> -->
    <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.0/jquery.dataTables.min.js"></script>
