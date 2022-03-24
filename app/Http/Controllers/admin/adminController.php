@@ -158,10 +158,14 @@ class adminController extends Controller
         if ($request->input('gametype') == 'Single Player') {
             $schedule_date = null;
             $schedule_time = null;
+            $game_start_time_half_hour_add = null;
         } else {
             $schedule_date = $request->input('schedule_date');
             $schedule_time = $request->input('schedule_time');
+            $game_start_time = strtotime("+30 minutes", strtotime($schedule_time));
+            $game_start_time_half_hour_add = date('G:i:s', $game_start_time);
         }
+
         if ($request->hasfile('music_file')) {
             $uniqueid = uniqid();
             $original_name = $request->file('music_file')->getClientOriginalName();
@@ -177,7 +181,7 @@ class adminController extends Controller
             'gametype' => $request->input('gametype'),
             'schedule_date' => $schedule_date,
             'schedule_time' => $schedule_time,
-            'game_start_time' => $schedule_date . ' ' . $schedule_time,
+            'game_start_time' => $schedule_date ." ". $game_start_time_half_hour_add,
             'level' => $request->input('level'),
             'tag' => serialize($request->input('tag')),
             'host' => $request->input('host'),
@@ -319,9 +323,13 @@ class adminController extends Controller
         if ($request->input('gametype') == 'Single Player') {
             $game->schedule_date = null;
             $game->schedule_time = null;
+            $game_start_time_half_hour_add = null;
         } else {
             $game->schedule_date = $request->input('schedule_date');
             $game->schedule_time = $request->input('schedule_time');
+            $game_start_time = strtotime("+30 minutes", strtotime($game->schedule_time));
+            $game_start_time_half_hour_add = date('G:i:s', $game_start_time);
+            $game->game_start_time =  $game->schedule_date. " " .$game_start_time_half_hour_add ;
         }
         $game->level = $request->input('level');
         $game->tag = serialize($request->input('tag'));
@@ -369,8 +377,6 @@ class adminController extends Controller
         $game->save();
         return redirect(route('all_games'))->with('message', 'Game published successfully');
     }
-
-
 
     public function delete_game(Request $request)
     {

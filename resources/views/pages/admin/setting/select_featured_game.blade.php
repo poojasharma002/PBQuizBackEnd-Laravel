@@ -64,9 +64,7 @@
                         </select>
 
                     </div>
-                    
-
-                    
+  
 
                         <div class="card-footer">
                             <input type="submit" value="Submit" class="btn btn-primary ">

@@ -72,10 +72,6 @@
                     <textarea class="form-control" name="question" id="question" rows="1" placeholder="Enter question here" required>{{$question->question}}</textarea>
                   </div>
 
-                  <!-- <div class="form-group">
-                    <label for="exampleInput3">Answer</label>
-                    <textarea class="form-control" name="answer" id="answer" rows="1" placeholder="Enter answer here" required>{{$question->answer}}</textarea>
-                  </div> -->
 
                   <div class="form-group">
                     <label for="exampleInput4">Option One</label>
@@ -112,12 +108,6 @@
                     </select>
 
 
-                  <!-- <div class="form-group mt-3">
-                    <label for="exampleInput7">Tags</label>
-                    <textarea class="form-control" name="tags" id="tags" rows="1" placeholder="Enter tags here">{{$question->tags}}</textarea>
-                  </div> -->
-
-
                   <div class="form-group">
                     <div class="select2-purple">
                     <label for="exampleInput9">Tags</label>
@@ -132,10 +122,6 @@
                     </div>
                 </div>
 
-                  <!-- <div class="form-group">
-                    <label for="exampleInput8">Music Snippet</label>
-                    <textarea class="form-control" name="music_code" id="music_code" rows="2" placeholder="Enter music-code here">{{$question->music_code}}</textarea>
-                  </div> -->
         
                   <div class="form-group">
                     <label for="exampleInput9">Host</label>
@@ -152,16 +138,7 @@
                     <input type="number" class="form-control" name="question_time" id="question_time" placeholder="Enter question time here in seconds" value="{{$question->question_time}}" required>
                 </div>
 
-                <!-- <div class="form-group">
-                    <label for="exampleInput11">Question Success Message</label>
-                    <textarea class="form-control" name="question_success_message" id="question_success_message" rows="1" placeholder="Enter question success message here">{{$question->question_success_message}}</textarea>
-                </div>
 
-                <div class="form-group">
-                    <label for="exampleInput12">Question Failure Message</label>
-                    <textarea class="form-control" name="question_fail_message" id="question_fail_message" rows="1" placeholder="Enter question failure message here">{{$question->question_fail_message}}</textarea>
-                </div> -->
-                <!-- /.card-body -->
                 <div class="card-footer">
                   <button type="submit" class="btn btn-primary">Update question</button>
                 </div>
@@ -189,11 +166,12 @@ $('.select2bs4').select2({
   theme: 'bootstrap4'
 });
 
-//store blade variable $$tag_name_array in javascript object
+
+//in edit question page select the default value of the tag
+
 var tag_name_object = [];
 tag_name_object   = @json($tag_name_array);
 
-//get name from the tag_name_object 
 var tag_name_array = [];
 var tag_id_array = [];
 for(var i=0; i<tag_name_object.length; i++){
@@ -202,7 +180,7 @@ for(var i=0; i<tag_name_object.length; i++){
 }
 
 var tag_select = $('#tag');
-//check if tag_select option matches tag_array option and select it
+
 for(var i = 0; i < tag_id_array.length; i++){
   tag_select.find('option').each(function(){
     if($(this).val() == tag_id_array[i]){
@@ -212,11 +190,6 @@ for(var i = 0; i < tag_id_array.length; i++){
     }
   });
 }
-
-
-
-
-
 
 
 </script>

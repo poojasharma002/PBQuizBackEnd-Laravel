@@ -265,9 +265,14 @@
 
 <script>
 
+$('.select2').select2()
+//Initialize Select2 Elements
+$('.select2bs4').select2({
+  theme: 'bootstrap4'
+})
 
-
-   document.getElementById('multiplayer-field_div').style.display = 'none';
+// SHOW AND HIDE MULTIPLAYER INPUT FIELDS
+document.getElementById('multiplayer-field_div').style.display = 'none';
   function multiplayerCheck() {
         if (document.getElementById('gametype').value == 'Multi Player') {
             document.getElementById('multiplayer-field_div').style.display = 'block';
@@ -275,24 +280,18 @@
             document.getElementById('multiplayer-field_div').style.display = 'none';
         }
     }
-    $('.select2').select2()
 
-    //Initialize Select2 Elements
-    $('.select2bs4').select2({
-      theme: 'bootstrap4'
-    })
+//FUNCTIONLAITY TO SELECT AND DESELECT QUESTIONS IN ROUND 1, 2 AND 3 IF QUSTION IS ALREADY SELECTED
 
 var questions = [];
 var questions = <?php echo json_encode($questions); ?>
 
 var all_questions = [];
 var selected_questions = [];
+
 questions.forEach(element => {
     all_questions.push(element.question);
-    //insert all questions in select tag
-
 });
-console.log(all_questions);
 for(var i=0; i<all_questions.length; i++){
     $('#round-1-select-tag').append('<option value="'+all_questions[i]+'">'+all_questions[i]+'</option>');
     $('#round-2-select-tag').append('<option value="'+all_questions[i]+'">'+all_questions[i]+'</option>');
@@ -300,7 +299,8 @@ for(var i=0; i<all_questions.length; i++){
 }
 var all_selected_questions = [];
 var non_selected_questions = [];
-//onchnage of roiund 1 select tag
+
+//onchnage of round 1 select tag
 
 $('#round-1-select-tag').on('change', function(){
     //get all selected questions of round 2 select tag
@@ -321,8 +321,6 @@ $('#round-1-select-tag').on('change', function(){
     
 
     //make all_selected_questions selected in round 2 select tag
-    console.log('round_2_selected_questions', round_2_selected_questions);
-
 
     selected_questions = [];
     all_selected_questions = [];
@@ -336,8 +334,7 @@ $('#round-1-select-tag').on('change', function(){
             non_selected_questions.push(element);
         }
     });
-    console.log('all_selected_questions', all_selected_questions);
-    console.log('non_selected_questions', non_selected_questions);
+
     $('#round-2-select-tag').empty();
     $('#round-3-select-tag').empty();
     for(var i=0; i<non_selected_questions.length; i++){
@@ -345,14 +342,14 @@ $('#round-1-select-tag').on('change', function(){
         $('#round-3-select-tag').append('<option value="'+non_selected_questions[i]+'">'+non_selected_questions[i]+'</option>');
     }
     //make all_selected_questions selected in round 2 select tag
-    console.log('round_2_selected_questions', round_2_selected_questions);
+
     $('#round-2-select-tag').val(round_2_selected_questions);
     $('#round-3-select-tag').val(round_3_selected_questions);
 
 
 });
 
-//onchnage of roiund 2 select tag
+//onchnage of round 2 select tag
 $('#round-2-select-tag').on('change', function(){
     round_3_selected_questions = $('#round-3-select-tag').val();
     $('#round-3-select-tag').find('option').each(function(){
@@ -368,7 +365,6 @@ $('#round-2-select-tag').on('change', function(){
     round1_selected_questions = $('#round-1-select-tag').val();
     round2_selected_questions = $('#round-2-select-tag').val();
 
-        //push round1_selected_questions and round2_selected_questions in all_selected_questions and push non selected questions in non_selected_questions
         round1_selected_questions.forEach(element => {
             all_selected_questions.push(element);
         });
@@ -386,9 +382,7 @@ $('#round-2-select-tag').on('change', function(){
             $('#round-3-select-tag').append('<option value="'+non_selected_questions[i]+'">'+non_selected_questions[i]+'</option>');
         }
         $('#round-3-select-tag').val(round_3_selected_questions);
-        
-
-      
+    
 
 });
 
@@ -398,15 +392,12 @@ $('#round-3-select-tag').on('change', function(){
     round1_selected_questions = $('#round-1-select-tag').val();
     round2_selected_questions = $('#round-2-select-tag').val();
     round3_selected_questions = $('#round-3-select-tag').val();
-    console.log('round3_selected_questions', round3_selected_questions);
-    console.log('round1_selected_questions', round1_selected_questions);
-    console.log('round2_selected_questions', round2_selected_questions);
+
     $('#round-1-select-tag').find('option').each(function(){
         if(round3_selected_questions.includes($(this).val())){
             //remove that option from round 1 select tag
             $(this).remove();
         }
-
     });
     $('#round-2-select-tag').find('option').each(function(){
         if(round3_selected_questions.includes($(this).val())){
@@ -417,6 +408,8 @@ $('#round-3-select-tag').on('change', function(){
     
 
 });
+
+
 
 
 </script>

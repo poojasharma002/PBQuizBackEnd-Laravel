@@ -1,5 +1,4 @@
-<!-- <h2>Hello <strong>{{ $name }},</strong></h2>
-<h1>{{ $body }}</h1> -->
+
 
 <!doctype html>
 <html lang="en">
@@ -18,8 +17,11 @@
     <div style="border-bottom:1px solid #eee">
       <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Pb Quiz</a>
     </div>
-    <p style="font-size:1.1em">Hi, <br><span style="font-weight:800;text-transform:capitalize">{{ $name }}</span> Click this link to reset yout password</p>
-    <a style="color:#2b649e" href="http://127.0.0.1:8000/reset-password">{{ $body }}</a>
+    <p style="font-size:1.1em">Hi, <span style="font-weight:800;text-transform:capitalize">{{ $name }}</span><br> Use this password to login into you account and then kindly change the password</p>
+    <b>{{ $data }}</b> <br>
+
+    <a href="http://3.141.178.201:3000/games">Login to Pbquiz </a>
+    <p style="font-size:1.1em">Thanks,<br>Pb Quiz</p>
     <!-- <p style="font-size:0.9em;">Regards,<br />Your Brand</p> -->
     <hr style="border:none;border-top:1px solid #eee" />
 

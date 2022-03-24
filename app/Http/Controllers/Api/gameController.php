@@ -25,6 +25,12 @@ use Illuminate\Support\Facades\Storage;
 class gameController extends Controller
 {
 
+/**
+ * 
+ * ALL GAMES, SINGLE GAMES AND MULTIPLAYER GAMES, PARTICAULAR GAME INFO API FUNCTIONS
+ * 
+ */
+
     public function getAllGames()
     {
         try{
@@ -62,282 +68,320 @@ class gameController extends Controller
 
     public function getSinglePlayerGame()
     {
-        //get games which are published and not deleted and order and game type is single player
-        //by schedule_date and schedule_time
-        $games = game::where('published', 1)->where('deleted', 0)->where('gametype', 'Single Player')->get();
+       try{
+            $games = game::where('published',1)
+            ->where('deleted',0)
+            ->where('gametype','Single Player')
+            ->orderBy('schedule_date','asc')
+            ->orderBy('schedule_time','asc')
+            ->get();
 
-        foreach ($games as $game) {
-            $games_details[] = [
-                'id' => $game->id,
-                'name' => $game->gamename,
-                'image' => $game->game_image,
-            ];
-        }
-
-        $data = [
-            'success' => true,
-            'data' => $games_details,
-            'error' => null,
-            'status' => 200
-        ];
-        return response()->json($data)->setStatusCode(200);
-    }
-
-    public function getMultiPlayerGame()
-    {
-       //get games which are published and not deleted and order and game type is multi player and game_start_time is greater than current time
-       $games = game::where('published', 1)->where('deleted', 0)->where('gametype', 'Multi Player')
-       ->where('schedule_date', '>=', Carbon::now()->format('Y-m-d'))
-       // ->where('schedule_time', '<', Carbon::now()->format('H:i:s'))
-       ->orderBy('schedule_date', 'asc')
-       ->orderBy('schedule_time', 'asc')
-       ->get();
-
-        // $games = game::where('published', 1)->where('deleted', 0)->where('gametype', 'Multi Player')
-        // ->where('game_start_time', '>', Carbon::now())->get();
-
-        // dd($games[0]->game_start_time , Carbon::now());
-
-        if(count($games) >= 1)
-        {
+            $games_name_id = [];
             foreach ($games as $game) {
-                $games_details[] = [
+                $games_name_id[] = [
                     'id' => $game->id,
                     'name' => $game->gamename,
                     'image' => $game->game_image,
+                    'type' => $game->gametype,
                     'schedule_time' => $game->schedule_time,
                     'schedule_date' => $game->schedule_date
                 ];
             }
-        }else{
-            $games_details = "No Multiplayer games available";
-        }
-
-       
-
-        $data = [
-            'success' => true,
-            'data' => $games_details,
-            'error' => null,
-            'status' => 200
-        ];
-        return response()->json($data)->setStatusCode(200);
-    }
-
-
-    public function getAllTrophies()
-    {
-        $trophies = trophy::where('deleted', 0)->get();
-        $trophies_name_id = [];
-        foreach ($trophies as $trophy) {
-            $trophies_name_id[] = [
-                'id' => $trophy->id,
-                'name' => $trophy->trophy_name,
-                'image' => $trophy->trophy_image,
+    
+            $data = [
+                'success' => true,
+                'data' => $games_name_id,
+                'error' => null,
+                'status' => 200
             ];
+            return response()->json($data)->setStatusCode(200);
         }
-        $data = [
-            'success' => true,
-            'data' => $trophies_name_id,
-            'error' => null,
-            'status' => 200
-        ];
-        return response()->json($data)->setStatusCode(200);
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
     }
 
-    public function getTrophyInfo($id)
+    public function getMultiPlayerGame()
     {
-        //get trophy is linked to which game and return game name
-        $game = game::where('trophy', $id)->first();
+        try{
+            date_default_timezone_set("Asia/Calcutta");
 
-        $trophy = trophy::where('id', $id)->first();
-        if ($game == null) {
-            $game_name = 'This trophy is not selected for any game';
-        } else {
-            $game_name = $game->gamename;
+            $games =  game::where('published', 1)
+            ->where('deleted', 0)
+            ->where('gametype', 'Multi Player')
+            ->where('game_start_time', '>=',   date('Y-m-d H:i:s'))
+            ->orderBy('schedule_date', 'asc')
+            ->orderBy('schedule_time', 'asc')
+            ->get();
+
+            if(count($games) >= 1)
+            {
+                foreach ($games as $game) {
+                    $games_details[] = [
+                        'id' => $game->id,
+                        'name' => $game->gamename,
+                        'image' => $game->game_image,
+                        'schedule_time' => $game->schedule_time,
+                        'schedule_date' => $game->schedule_date
+                    ];
+                }
+            }else{
+                $games_details = "No Multiplayer games available";
+            }
+    
+            $data = [
+                'success' => true,
+                'data' => $game_details,
+                'error' => null,
+                'status' => 200
+            ];
+            return response()->json($data)->setStatusCode(200);
         }
-        $trophy = [
-            'id' => $trophy->id,
-            'name' => $trophy->trophy_name,
-            'image' => $trophy->trophy_image,
-            'description' => $trophy->trophy_desc,
-            'game' => $game_name
-        ];
-        $data = [
-            'success' => true,
-            'data' => $trophy,
-            'error' => null,
-            'status' => 200
-        ];
-        return response()->json($data)->setStatusCode(200);
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
     }
 
     public function getGameInfo(Request $request)
     {
-        $game = game::where('id', $request->id)->first();
+        try{
+            $game = game::where('id', $request->id)->first();
+            $game->host = settings::where('id', $game->host)->where('type', 'host')->first()->name;
 
-        //get tag name from tag id in setting table
-        // $game->tag = settings::where('id',$game->tag)->where('type','tag')->first()->name;
-        $game->host = settings::where('id', $game->host)->where('type', 'host')->first()->name;
-        // $game->trophy = trophy::where('id',$game->tag)->first()->name;'
+            $data = [
+                'success' => true,
+                'data' => new GameResource($game),
+                'error' => null,
+                'status' => 200
+            ];
 
-        $data = [
-            'success' => true,
-            'data' => new GameResource($game),
-            'error' => null,
-            'status' => 200
-        ];
-
-        return response()->json($data)->setStatusCode(200);
+            return response()->json($data)->setStatusCode(200);
+        }
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
     }
+
+/**
+ * 
+ * ALL TROPHIES AND PARTTICULAR TROPHY API FUNCTIONS
+ * 
+ */
+
+    public function getAllTrophies()
+    {
+
+        try{
+            $trophies = trophy::where('deleted', 0)->get();
+            $trophies_name_id = [];
+            foreach ($trophies as $trophy) {
+                $trophies_name_id[] = [
+                    'id' => $trophy->id,
+                    'name' => $trophy->trophy_name,
+                    'image' => $trophy->trophy_image,
+                ];
+            }
+            
+            $data = [
+                'success' => true,
+                'data' => $trophies_name_id,
+                'error' => null,
+                'status' => 200
+            ];
+            return response()->json($data)->setStatusCode(200);
+        }
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
+
+    }
+
+    public function getTrophyInfo($id)
+    {
+        try{
+            $trophy = trophy::where('id', $id)->first();
+            $game = game::where('trophy', $id)->first();
+            if ($game == null) {
+                $game_name = 'This trophy is not selected for any game';
+            } else {
+                $game_name = $game->gamename;
+            }
+            $trophy = [
+                'id' => $trophy->id,
+                'name' => $trophy->trophy_name,
+                'image' => $trophy->trophy_image,
+                'description' => $trophy->trophy_desc,
+                'game' => $game_name
+            ];
+            $data = [
+                'success' => true,
+                'data' => $trophy,
+                'error' => null,
+                'status' => 200
+            ];
+            return response()->json($data)->setStatusCode(200);
+        }
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
+    }
+
+/**
+ * 
+ *  LEADERBOARD(ALL TIME,MONTHLY,WEEKLY,DAILY) API FUNCTIONS
+ * 
+ */
+
 
     public function leaderboard()
     {
-
-        // $leaderboard = statistics::select('user_id','score')->where('game_id',$request->id)->orderBy('score','desc')->limit(3)->get();
-        // prev code
-        // $topThreeScorer = statistics::distinct()->orderBy('total_score','desc')->limit(8)->get(['user_id','total_score']);
-        // dd($topThreeScorer);
-        // $leaderboard = [];
-        // foreach($topThreeScorer as $scorer){
-        //     $leaderboard[] = [
-        //         'user_id'=>$scorer->user_id,
-        //         'top_scorer_name'=>$scorer->user->name,
-        //         'score'=>$scorer->total_score
-        //     ];
-        // }
-        //prev code end
-
-        $user_ids = statistics::distinct()
-            ->limit(10)
+        try{
+            $user_ids = statistics::distinct()
             ->get(['user_id']);
 
-        $leaderboard = [];
-        foreach ($user_ids as $user_id) {
-            $leaderboard[] = [
-                'user_id' => $user_id->user_id,
-                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
-                'score' => statistics::where('user_id', $user_id->user_id)
-                    ->sum('total_score')
+            $leaderboard = [];
+            foreach ($user_ids as $user_id) {
+                $leaderboard[] = [
+                    'user_id' => $user_id->user_id,
+                    'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                    'score' => statistics::where('user_id', $user_id->user_id)
+                        ->sum('total_score')
+                ];
+            }
+
+            usort($leaderboard, function ($a, $b) {
+                return $b['score'] - $a['score'];
+            });
+
+            $data = [
+                'success' => true,
+                'data' => $leaderboard,
+                'error' => null,
+                'status' => 200
             ];
+
+            return response()->json($data)->setStatusCode(200);
         }
-
-        usort($leaderboard, function ($a, $b) {
-            return $b['score'] - $a['score'];
-        });
-        $leaderboard = array_slice($leaderboard, 0, 8);
-
-
-        $data = [
-            'success' => true,
-            'data' => $leaderboard,
-            'error' => null,
-            'status' => 200
-        ];
-        return response()->json($data)->setStatusCode(200);
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
     }
 
     public function leaderboardToday()
     {
-        $user_ids = statistics::distinct()
+        try{
+            $user_ids = statistics::distinct()
             ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
             ->get(['user_id']);
 
-        $leaderboard = [];
-        foreach ($user_ids as $user_id) {
-            $leaderboard[] = [
-                'user_id' => $user_id->user_id,
-                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
-                'score' => statistics::where('user_id', $user_id->user_id)
-                    ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
-                    ->sum('total_score')
+            $leaderboard = [];
+            foreach ($user_ids as $user_id) {
+                $leaderboard[] = [
+                    'user_id' => $user_id->user_id,
+                    'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                    'score' => statistics::where('user_id', $user_id->user_id)
+                        ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
+                        ->sum('total_score')
+                ];
+            }
+
+            usort($leaderboard, function ($a, $b) {
+                return $b['score'] - $a['score'];
+            });
+
+            $data = [
+                'success' => true,
+                'data' => $leaderboard,
+                'error' => null,
+                'status' => 200
             ];
+
+            return response()->json($data)->setStatusCode(200);
         }
-
-        //sort by highest score and return top 3
-        usort($leaderboard, function ($a, $b) {
-            return $b['score'] - $a['score'];
-        });
-
-        $leaderboard = array_slice($leaderboard, 0, 8);
-
-
-        $data = [
-            'success' => true,
-            'data' => $leaderboard,
-            'error' => null,
-            'status' => 200
-        ];
-
-        return response()->json($data)->setStatusCode(200);
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
     }
 
     public function leaderboardMonthly()
     {
-        $userIds = statistics::distinct()
+        try{
+            $user_ids = statistics::distinct()
             ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
             ->get(['user_id']);
 
-        $leaderboard = [];
-        foreach ($userIds as $user_id) {
-            $leaderboard[] = [
-                'user_id' => $user_id->user_id,
-                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
-                'score' => statistics::where('user_id', $user_id->user_id)
-                    ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-                    ->sum('total_score')
+            $leaderboard = [];
+            foreach ($user_ids as $user_id) {
+                $leaderboard[] = [
+                    'user_id' => $user_id->user_id,
+                    'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                    'score' => statistics::where('user_id', $user_id->user_id)
+                        ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
+                        ->sum('total_score')
+                ];
+            }
+
+            usort($leaderboard, function ($a, $b) {
+                return $b['score'] - $a['score'];
+            });
+
+            $data = [
+                'success' => true,
+                'data' => $leaderboard,
+                'error' => null,
+                'status' => 200
             ];
+
+            return response()->json($data)->setStatusCode(200);
+        }
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
         }
 
-        //sort by highest score and return top 3
-        usort($leaderboard, function ($a, $b) {
-            return $b['score'] - $a['score'];
-        });
-
-        $leaderboard = array_slice($leaderboard, 0, 10);
-
-        $data = [
-            'success' => true,
-            'data' => $leaderboard,
-            'error' => null,
-            'status' => 200
-        ];
-        return response()->json($data)->setStatusCode(200);
     }
 
     public function leaderboardWeekly()
     {
-        $userIds = statistics::distinct()
+
+        try{
+            $user_ids = statistics::distinct()
             ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->get(['user_id']);
 
-        $leaderboard = [];
-        foreach ($userIds as $user_id) {
-            $leaderboard[] = [
-                'user_id' => $user_id->user_id,
-                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
-                'score' => statistics::where('user_id', $user_id->user_id)
-                    ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                    ->sum('total_score')
+            $leaderboard = [];
+            foreach ($user_ids as $user_id) {
+                $leaderboard[] = [
+                    'user_id' => $user_id->user_id,
+                    'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                    'score' => statistics::where('user_id', $user_id->user_id)
+                        ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                        ->sum('total_score')
+                ];
+            }
+
+            usort($leaderboard, function ($a, $b) {
+                return $b['score'] - $a['score'];
+            });
+
+            $data = [
+                'success' => true,
+                'data' => $leaderboard,
+                'error' => null,
+                'status' => 200
             ];
+
+            return response()->json($data)->setStatusCode(200);
         }
-
-        //sort by highest score and return top 3
-        usort($leaderboard, function ($a, $b) {
-            return $b['score'] - $a['score'];
-        });
-
-        $leaderboard = array_slice($leaderboard, 0, 10);
-
-        $data = [
-            'success' => true,
-            'data' => $leaderboard,
-            'error' => null,
-            'status' => 200
-        ];
-
-        return response()->json($data)->setStatusCode(200);
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
     }
+
+/**
+ * 
+ *  INSERT GAME SCORE API FUNCTIONS
+ * 
+ */
 
     public function insertUserGamePlayedData(GameRequest $request)
     {
@@ -397,80 +441,85 @@ class gameController extends Controller
                 }
     }
 
+/**
+ * 
+ *  PARTICULAR USER GAME AND TROPHIES API FUNCTIONS
+ * 
+ */
+
     public function getUserGames(Request $request)
     {
         $headerToken = $request->header('Authorization');
         $user = User::where('token', $headerToken)->first();
 
-        $user_id = $user->id;
-
-
-        //get all information from statistics table where user_id is unique and total_score is highest
-        $statistics = statistics::select('game_id','user_id','correct_answer','incorrect_answer','total_questions','total_score','trophy_won','star_won')
-        ->where('user_id', $user_id)
-        ->orderBy('total_score', 'desc')
-        ->get()
-        ->unique('game_id');
+        try{
+            $user_id = $user->id;
+            $statistics = statistics::select('game_id','user_id','correct_answer','incorrect_answer','total_questions','total_score','trophy_won','star_won')
+            ->where('user_id', $user_id)
+            ->orderBy('total_score', 'desc')
+            ->get()
+            ->unique('game_id');
             
 
-        $data = [
-            'success' => true,
-            'data' => $statistics->values(),
-            'error' => null,
-            'status' => 200
-        ];
+            $data = [
+                'success' => true,
+                'data' => $statistics->values(),
+                'error' => null,
+                'status' => 200
+            ];
 
-        return response()->json($data)->setStatusCode(200);
+            return response()->json($data)->setStatusCode(200);
+        }
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
     }
 
     public function getUserTrophies(Request $request)
     {
         $headerToken = $request->header('Authorization');
         $user = User::where('token', $headerToken)->first();
-        $user_id = $user->id;
 
-        $statistics = statistics::select('game_id','user_id','correct_answer','incorrect_answer','total_questions','total_score','trophy_won','star_won')
+        try{
+            $user_id = $user->id;
+            $statistics = statistics::select('game_id','user_id','correct_answer','incorrect_answer','total_questions','total_score','trophy_won','star_won')
             ->where('user_id', $user_id)
             ->orderBy('total_score', 'desc')
             ->get()
             ->unique('game_id');
 
-        // $statistics = statistics::where('user_id', $user_id)
-        //     ->orderBy('total_score', 'desc')
-        //     ->get()
-        //     ->unique('game_id');
+            $trophies = [];
+            foreach ($statistics as $statistic) {
+                $trophies[] = [
+                    'game_id' => $statistic->game_id,
+                    'correct_answer' => $statistic->correct_answer,
+                    'total_questions' => $statistic->total_questions,
+                    'trophy_won' => $statistic->trophy_won,
+                    'star_won' => $statistic->star_won,
+                    'trophy_id' => game::where('id', $statistic->game_id)->first()->trophy
+                ];
+            }
+            
 
-        //get trophy details of their respective game
-        $trophies = [];
-        foreach ($statistics as $statistic) {
-            $trophies[] = [
-                'game_id' => $statistic->game_id,
-                'correct_answer' => $statistic->correct_answer,
-                'total_questions' => $statistic->total_questions,
-                'trophy_won' => $statistic->trophy_won,
-                'star_won' => $statistic->star_won,
-                'trophy_id' => game::where('id', $statistic->game_id)->first()->trophy,
-                // 'trophy_name' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_name,
-                // 'trophy_image' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_image,
-                // 'trophy_description' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_description,
-                // 'trophy_won' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_won
+            $data = [
+                'success' => true,
+                'data' => $trophies,
+                'error' => null,
+                'status' => 200
             ];
+
+            return response()->json($data)->setStatusCode(200);
         }
-
-        $data = [
-            'success' => true,
-            'data' =>$trophies,
-            'error' => null,
-            'status' => 200
-        ];
-
-
-
-
-
-
-        return response()->json($data)->setStatusCode(200);
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
     }
+
+/**
+ * 
+ *  SINGLE PLAYER STATS AND ALL PLAYERS STATS API FUNCTIONS
+ * 
+ */
 
     public function getUserPlayedStats(Request $request)
     {
@@ -596,10 +645,6 @@ class gameController extends Controller
                     ->where('created_at', '>', Carbon::now()->subDays(1))
                     ->where('created_at', '<', Carbon::now())
                     ->count('user_id'),
-                // 'most_played_game' => statistics::select('game_id', DB::raw("count(*) as c"))
-                //     ->where('user_id','=',$user->id)
-                //     ->groupBy('game_id')
-                //     ->get()[0]['game_id'],
 
                 'completed_games' => statistics::where('user_id', $user->id)
                     ->groupBy('game_id')
@@ -620,216 +665,276 @@ class gameController extends Controller
 
     }
 
+/**
+ * 
+ *  USER RANK(ALL TIME, MONTHLY, WEEKLY, DAILY) API FUNCTIONS
+ * 
+ */
 
 
     public function getUserRankAlltime(Request $request,$id)
     {
         $headerToken = $request->header('Authorization');
-        $user = User::where('token', $headerToken)->first();
-        $current_user_id = $id;
 
-        $userIds = statistics::distinct()
-            ->get(['user_id']);
+        try{
+            $user = User::where('token', $headerToken)->first();
+            $current_user_id = $id;
 
-        $leaderboard = [];
-        foreach ($userIds as $user_id) {
-            $leaderboard[] = [
-                'user_id' => $user_id->user_id,
-                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
-                'score' => statistics::where('user_id', $user_id->user_id)
-                    ->sum('total_score'),
-            ];
-        }  
-        //sort by highest score 
-        usort($leaderboard, function ($a, $b) {
-            return $b['score'] - $a['score'];
-        });
-        //add rank to the leaderboard
-        $i = 1;
-        foreach ($leaderboard as $key => $value) {
-            $leaderboard[$key]['rank'] = $i;
-            $i++;
-        }
+            $userIds = statistics::distinct()
+                ->get(['user_id']);
 
-        //get the data of the current user
-        $current_user_data = [];
-        foreach ($leaderboard as $key => $value) {
-            if ($value['user_id'] == $current_user_id) {
-                $current_user_data = $value;
+            $leaderboard = [];
+            foreach ($userIds as $user_id) {
+                $leaderboard[] = [
+                    'user_id' => $user_id->user_id,
+                    'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                    'score' => statistics::where('user_id', $user_id->user_id)
+                        ->sum('total_score'),
+                ];
+            }  
+            //sort by highest score 
+            usort($leaderboard, function ($a, $b) {
+                return $b['score'] - $a['score'];
+            });
+            //add rank to the leaderboard
+            $i = 1;
+            foreach ($leaderboard as $key => $value) {
+                $leaderboard[$key]['rank'] = $i;
+                $i++;
             }
-        }
-        if(count($current_user_data) == 0){
-            $current_user_data = "No Rank Available";
-        }
-        $data = [
-            'success' => true,
-            'data' => $current_user_data,
-            'error' => null,
-            'status' => 200
-        ];
 
-        return response()->json($data)->setStatusCode(200);
+            //get the data of the current user
+            $current_user_data = [];
+            foreach ($leaderboard as $key => $value) {
+                if ($value['user_id'] == $current_user_id) {
+                    $current_user_data = $value;
+                }
+            }
+            if(count($current_user_data) == 0){
+                $current_user_data = "No Rank Available";
+            }
+            $data = [
+                'success' => true,
+                'data' => $current_user_data,
+                'error' => null,
+                'status' => 200
+            ];
+
+            return response()->json($data)->setStatusCode(200);
+        }
+        catch(Exception $e){
+            $data = [
+                'success' => false,
+                'data' => null,
+                'error' => $e->getMessage(),
+                'status' => 500
+            ];
+
+            return response()->json($data)->setStatusCode(500);
+        }
     }
 
     public function getUserRankWeekly(Request $request,$id)
     {
         $headerToken = $request->header('Authorization');
-        $user = User::where('token', $headerToken)->first();
-        $current_user_id = $id;
-        
-        $userIds = statistics::distinct()
-            ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->get(['user_id']);
 
-        $leaderboard = [];
-        foreach ($userIds as $user_id) {
-            $leaderboard[] = [
-                'user_id' => $user_id->user_id,
-                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
-                'score' => statistics::where('user_id', $user_id->user_id)
-                    ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-                    ->sum('total_score'),
-                    'gdfgdf'=>1
-            ];
-        }
-        //sort by highest score
-        usort($leaderboard, function ($a, $b) {
-            return $b['score'] - $a['score'];
-        });
+        try{
+            $user = User::where('token', $headerToken)->first();
+            $current_user_id = $id;
 
-        //add rank to the leaderboard
-        $i = 1;
-        foreach ($leaderboard as $key => $value) {
-            $leaderboard[$key]['rank'] = $i;
-            $i++;
-        }
+            $userIds = statistics::distinct()
+                ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                ->get(['user_id']);
 
-        //get the data of the current user
-        $current_user_data = [];
-        foreach ($leaderboard as $key => $value) {
-            if ($value['user_id'] == $current_user_id) {
-                $current_user_data = $value;
+            $leaderboard = [];
+            foreach ($userIds as $user_id) {
+                $leaderboard[] = [
+                    'user_id' => $user_id->user_id,
+                    'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                    'score' => statistics::where('user_id', $user_id->user_id)
+                        ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
+                        ->sum('total_score'),
+                ];
+            }  
+            //sort by highest score 
+            usort($leaderboard, function ($a, $b) {
+                return $b['score'] - $a['score'];
+            });
+            //add rank to the leaderboard
+            $i = 1;
+            foreach ($leaderboard as $key => $value) {
+                $leaderboard[$key]['rank'] = $i;
+                $i++;
             }
-        }
-        if(count($current_user_data) == 0){
-            $current_user_data = "No Rank Available";
-        }
-        $data = [
-            'success' => true,
-            'data' => $current_user_data,
-            'error' => null,
-            'status' => 200
-        ];
 
-        return response()->json($data)->setStatusCode(200);
+            //get the data of the current user
+            $current_user_data = [];
+            foreach ($leaderboard as $key => $value) {
+                if ($value['user_id'] == $current_user_id) {
+                    $current_user_data = $value;
+                }
+            }
+            if(count($current_user_data) == 0){
+                $current_user_data = "No Rank Available";
+            }
+            $data = [
+                'success' => true,
+                'data' => $current_user_data,
+                'error' => null,
+                'status' => 200
+            ];
+
+            return response()->json($data)->setStatusCode(200);
+        }
+
+        catch(Exception $e){
+            $data = [
+                'success' => false,
+                'data' => null,
+                'error' => $e->getMessage(),
+                'status' => 500
+            ];
+
+            return response()->json($data)->setStatusCode(500);
+        }
 
     }
 
     public function getUserRankToday(Request $request,$id)
     {
         $headerToken = $request->header('Authorization');
-        $user = User::where('token', $headerToken)->first();
-        $current_user_id = $id;
 
-        $userIds = statistics::distinct()
-            ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
-            ->get(['user_id']);
+        try{
+            $user = User::where('token', $headerToken)->first();
+            $current_user_id = $id;
 
-        $leaderboard = [];
-        foreach ($userIds as $user_id) {
-            $leaderboard[] = [
-                'user_id' => $user_id->user_id,
-                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
-                'score' => statistics::where('user_id', $user_id->user_id)
-                    ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
-                    ->sum('total_score'),
-            ];
-        }
+            $userIds = statistics::distinct()
+                ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
+                ->get(['user_id']);
 
-        //sort by highest score
-        usort($leaderboard, function ($a, $b) {
-            return $b['score'] - $a['score'];
-        });
-
-        //add rank to the leaderboard
-        $i = 1;
-        foreach ($leaderboard as $key => $value) {
-            $leaderboard[$key]['rank'] = $i;
-            $i++;
-        }
-
-        //get the data of the current user
-        $current_user_data = [];
-        foreach ($leaderboard as $key => $value) {
-            if ($value['user_id'] == $current_user_id) {
-                $current_user_data = $value;
+            $leaderboard = [];
+            foreach ($userIds as $user_id) {
+                $leaderboard[] = [
+                    'user_id' => $user_id->user_id,
+                    'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                    'score' => statistics::where('user_id', $user_id->user_id)
+                        ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
+                        ->sum('total_score'),
+                ];
+            }  
+            //sort by highest score 
+            usort($leaderboard, function ($a, $b) {
+                return $b['score'] - $a['score'];
+            });
+            //add rank to the leaderboard
+            $i = 1;
+            foreach ($leaderboard as $key => $value) {
+                $leaderboard[$key]['rank'] = $i;
+                $i++;
             }
-        }
-        if(count($current_user_data) == 0){
-            $current_user_data = "No Rank Available";
-        }
-        $data = [
-            'success' => true,
-            'data' => $current_user_data,
-            'error' => null,
-            'status' => 200
-        ];
 
-        return response()->json($data)->setStatusCode(200);
+            //get the data of the current user
+            $current_user_data = [];
+            foreach ($leaderboard as $key => $value) {
+                if ($value['user_id'] == $current_user_id) {
+                    $current_user_data = $value;
+                }
+            }
+            if(count($current_user_data) == 0){
+                $current_user_data = "No Rank Available";
+            }
+            $data = [
+                'success' => true,
+                'data' => $current_user_data,
+                'error' => null,
+                'status' => 200
+            ];
+
+            return response()->json($data)->setStatusCode(200);
+        }
+        catch(Exception $e){
+            $data = [
+                'success' => false,
+                'data' => null,
+                'error' => $e->getMessage(),
+                'status' => 500
+            ];
+
+            return response()->json($data)->setStatusCode(500);
+        }
+        
     }
 
     public function getUserRankMonthly(Request $request,$id)
     {
         $headerToken = $request->header('Authorization');
-        $user = User::where('token', $headerToken)->first();
-        $current_user_id = $id;
 
-        $userIds = statistics::distinct()
-            ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-            ->get(['user_id']);
+        try{
+            $user = User::where('token', $headerToken)->first();
+            $current_user_id = $id;
 
-        $leaderboard = [];
-        foreach ($userIds as $user_id) {
-            $leaderboard[] = [
-                'user_id' => $user_id->user_id,
-                'top_scorer_name' => explode(' ', $user_id->user->name)[0],
-                'score' => statistics::where('user_id', $user_id->user_id)
-                    ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
-                    ->sum('total_score'),
-            ];
-        }
+            $userIds = statistics::distinct()
+                ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
+                ->get(['user_id']);
 
-        //sort by highest score
-        usort($leaderboard, function ($a, $b) {
-            return $b['score'] - $a['score'];
-        });
-
-        //add rank to the leaderboard
-        $i = 1;
-        foreach ($leaderboard as $key => $value) {
-            $leaderboard[$key]['rank'] = $i;
-            $i++;
-        }
-
-        //get the data of the current user
-        $current_user_data = [];
-        foreach ($leaderboard as $key => $value) {
-            if ($value['user_id'] == $current_user_id) {
-                $current_user_data = $value;
+            $leaderboard = [];
+            foreach ($userIds as $user_id) {
+                $leaderboard[] = [
+                    'user_id' => $user_id->user_id,
+                    'top_scorer_name' => explode(' ', $user_id->user->name)[0],
+                    'score' => statistics::where('user_id', $user_id->user_id)
+                        ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
+                        ->sum('total_score'),
+                ];
+            }  
+            //sort by highest score 
+            usort($leaderboard, function ($a, $b) {
+                return $b['score'] - $a['score'];
+            });
+            //add rank to the leaderboard
+            $i = 1;
+            foreach ($leaderboard as $key => $value) {
+                $leaderboard[$key]['rank'] = $i;
+                $i++;
             }
-        }
-        if(count($current_user_data) == 0){
-            $current_user_data = "No Rank Available";
-        }
-        $data = [
-            'success' => true,
-            'data' => $current_user_data,
-            'error' => null,
-            'status' => 200
-        ];
 
-        return response()->json($data)->setStatusCode(200);
+            //get the data of the current user
+            $current_user_data = [];
+            foreach ($leaderboard as $key => $value) {
+                if ($value['user_id'] == $current_user_id) {
+                    $current_user_data = $value;
+                }
+            }
+            if(count($current_user_data) == 0){
+                $current_user_data = "No Rank Available";
+            }
+            $data = [
+                'success' => true,
+                'data' => $current_user_data,
+                'error' => null,
+                'status' => 200
+            ];
+
+            return response()->json($data)->setStatusCode(200);
+        }
+            
+            catch(Exception $e){
+                $data = [
+                    'success' => false,
+                    'data' => null,
+                    'error' => $e->getMessage(),
+                    'status' => 500
+                ];
+
+                return response()->json($data)->setStatusCode(500);
+            }
     }
+
+/**
+ * 
+ *  LIVE SCORE AND FEATURE GAME API FUNCTIONS
+ * 
+ */
 
     public function getLiveScore(Request $request){
 
@@ -905,8 +1010,10 @@ class gameController extends Controller
     }
 
     public function getFeaturedGame(Request $request){
-       //get feature game from settings
          $feature_game = Settings::where('type', 'featured_game')->first();
+            $game_id = $feature_game->name;
+            $host_name = game::where('id', $game_id)->first()->host;
+            $feature_game->host = $host_name;
             $data = [
                 'success' => true,
                 'data' => $feature_game,

@@ -25,7 +25,7 @@ use App\Http\Controllers\admin\settingsController;
 
 /**
  * 
- *  Question  Routes
+ *  Question PAGE Routes
  * 
  */
 
@@ -53,7 +53,7 @@ Route::post('delete/question', [adminController::class, 'deleted_question']);
 
 /**
  * 
- *  Game Routes
+ *  Game PAGE Routes
  * 
  */
 
@@ -87,7 +87,7 @@ Route::post('delete/game', [adminController::class, 'delete_game']);
 
 /**
  * 
- *  User Routes
+ *  User PAGE Routes
  * 
  */
 
@@ -97,10 +97,6 @@ Route::get('/all_users', [adminController::class, 'all_users'])
 
 //change user status
 Route::get('/change_status/{id}', [adminController::class, 'change_status']);
-
-
-
-
 
 
 

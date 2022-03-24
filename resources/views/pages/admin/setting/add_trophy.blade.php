@@ -181,20 +181,16 @@ $(document).ready(function() {
 );
 
 var id = '';
+
+//ENTER BUTTON DISABLED
+
 window.addEventListener('keydown',function(e){if(e.keyIdentifier=='U+000A'||e.keyIdentifier=='Enter'||e.keyCode==13){if(e.target.nodeName=='INPUT'&&e.target.type=='text'){e.preventDefault();return false;}}},true);
 
-function editFunc(this_para,id){
-    var trophy_name = $(this_para).closest('tr').find('td:eq(1)').text();
-    var trophy_description = $(this_para).closest('tr').find('td:eq(3)').text();
-    $('#trophy_name_edit').val(trophy_name);
-    $('#trophy_desc_edit').val(trophy_description);
-    $('#edit-id').val(id);
-     id = id;
-    // var trophy_image = $(this_para).closest('tr').find('td:eq(2)').find('img').attr('src');
-    // alert(trophy_image);
-    // $('#trophy_image_edit').val(trophy_image_edit);
-}
-  //addFunc 
+
+
+
+//ADD TROPHY FUNCTION
+
 $(document).ready(function() {
   $('#trophy-form').submit(function(e){
       e.preventDefault();
@@ -298,41 +294,19 @@ $(document).ready(function() {
   });
 });
 
-// function editFunc(this_para,id){
-//   //disable enter key
+//EDIT TROPHY FUNCTION
 
-//     //get the value of the trophy name
-//     var trophy_name = $(this_para).closest('tr').find('td:eq(1)').text();
-//     //set the value of the trophy name
-//     $('#trophy_name_edit').val(trophy_name);
-    
-//     //get the value of the trophy image
-//     var trophy_image = $(this_para).closest('tr').find('td:eq(2)').find('img').attr('src');
-  
-// //on click of update-btn update the Host name in the database
-//     $('#update-btn').click(function(){
+function editFunc(this_para,id){
+    var trophy_name = $(this_para).closest('tr').find('td:eq(1)').text();
+    var trophy_description = $(this_para).closest('tr').find('td:eq(3)').text();
+    $('#trophy_name_edit').val(trophy_name);
+    $('#trophy_desc_edit').val(trophy_description);
+    $('#edit-id').val(id);
+     id = id;
 
-//         var trophy_name_edit = $('#trophy_name_edit').val();
-//         $.ajax({
-//             url: "{{url('edit_trophy') }}",
-//             type: 'PUT',
-//             data: {
-//                 _token: "{{csrf_token()}}" , 
-//                 trophy_name_edit: trophy_name_edit,
-//                 id: id
-//             },
-//             success: function(data){
-//                 //close the modal
-//                 $('#modelId').modal('hide');
-//                 //update the Host name in the table
-//                 $(this_para).closest('tr').find('td:eq(1)').text(host_name_edit);
-//                 //show the success message
-//                 alert('Trophy Updated Successfully');
-//                 location.reload();
-//             }
-//         });
-//     });
-// }
+}
+
+//DELETE TROPHY FUNCTION
 
 function deleteFunc(this_para,id){
         var id = id;

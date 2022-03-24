@@ -153,13 +153,12 @@ $(document).ready(function() {
   } 
 );
 
-  window.addEventListener('keydown',function(e){if(e.keyIdentifier=='U+000A'||e.keyIdentifier=='Enter'||e.keyCode==13){if(e.target.nodeName=='INPUT'&&e.target.type=='text'){e.preventDefault();return false;}}},true);
+//DISABLE ENTER BUTTON
 
+window.addEventListener('keydown',function(e){if(e.keyIdentifier=='U+000A'||e.keyIdentifier=='Enter'||e.keyCode==13){if(e.target.nodeName=='INPUT'&&e.target.type=='text'){e.preventDefault();return false;}}},true);
 
-    //addFunc 
+// ADD HOST FUNCTION
 function addFunc(elem){
-  //disable enter button
-
     var host_name = $('#host_name').val();
 
     if(host_name === "" ){
@@ -179,26 +178,17 @@ function addFunc(elem){
         },
         success: function(data){
             location.reload();
-            // console.log(data);
-            // //get number of rows
-            // var rowCount = $('#all-questions-table tr').length;
-            // //add row to table
-            // var row = '<tr><td style="width:5%">'+ rowCount+'</td><td>'+data.host_name+'</td><td style="width:20%"><a href="javascript:void(0)" class="btn btn-primary " onclick="editFunc(this,'+data.id+')" data-toggle="modal" data-target="#modelId"> <i class="fa fa-edit"></i> </a> <a href="javascript:void(0)" class="btn btn-danger text-light deleteBtn" onclick="deleteFunc(this,'+data.id+')"> <i class="fa fa-trash" aria-hidden="true"></i> </a></td></tr>';
-            // $('#all-questions-table tbody').append(row);
-            // //clear input
-            // $('#host_name').val('');
-            // alert('Host Added Successfully');
-
         }
     });
 }
 
+//EDIT HOST FUNCTION
 function editFunc(this_para,id){
 
     var host_name = $(this_para).closest('tr').find('td:eq(1)').text();
 
     $('#host_name_edit').val(host_name);
-//on click of update-btn update the Host name in the database
+
     $('#update-btn').click(function(){
 
         var host_name_edit = $('#host_name_edit').val();
@@ -228,6 +218,8 @@ function editFunc(this_para,id){
         });
     });
 }
+
+//DELETE HOST FUNCTION
 
 function deleteFunc(this_para,id){    
   var id = id;
@@ -264,9 +256,6 @@ function deleteFunc(this_para,id){
 
     
 }
-
-
-
 
 
 </script>

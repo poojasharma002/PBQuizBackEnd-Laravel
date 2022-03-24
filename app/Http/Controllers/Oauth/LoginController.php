@@ -26,15 +26,11 @@ class LoginController extends Controller
             $userEmail =$response["email"];
             $userProfilePic = $response["picture"];
 
-        // $userDetails = User::where('email',$userEmail )->first();
+
         $userDetails = User::where('email',$userEmail )
         ->where('role','user')
         ->first();
 
-        //if user status is not active
-
-
-     
 
         if(!$userDetails){
             $userDetails = new User(); 

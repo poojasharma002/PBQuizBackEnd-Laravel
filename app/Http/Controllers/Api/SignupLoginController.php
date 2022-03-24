@@ -104,7 +104,7 @@ class SignupLoginController extends Controller
             'email' => 'required|string|email|max:255',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->where('role','user')->first();
         
 
         if (!$user) {
@@ -121,13 +121,22 @@ class SignupLoginController extends Controller
         else{
             $to_name = $user->name;
         $to_email = $user->email;
-                $data = array('name'=>$to_name, "body" => "http://127.0.0.1:8000/reset-password");
-                Mail::send('emails.mail', $data, function($message) use ($to_name, $to_email) {
-                        $message->to($to_email, $to_name)->subject('Pb Quiz Password Reset Link'); 
-                        $message->from('surajtest0987@gmail.com','OTP for email verificatin Cynoteck Canteen');
-                });
-    
-    
+        
+        //send random 8 digit string to user email for reset password 
+        $data = Str::random(8);
+        $user->password = Hash::make($data);
+        $user->save();
+
+
+        //send email to user
+        Mail::send('emails.mail', ['name'=>$to_name,'data' => $data], function ($message) use ($to_name, $to_email) {
+            $message->to($to_email, $to_name)
+                ->subject('Reset Password');
+                $message->from('surajtest0987@gmail.com','Reset Password from PB Quiz');
+
+        });
+
+
                 if (Mail::failures()) {
                     return response()->json(["error"=>"email not sent","status"=>401],401);
                 }else{

@@ -48,6 +48,13 @@
     display:none;
   }
 }
+@media only screen and (max-width: 431px) {
+    .dataTables_filter{
+      text-align:left;
+      float:left;
+    }
+
+}
 
 
 

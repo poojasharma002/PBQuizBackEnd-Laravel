@@ -32,7 +32,7 @@ Route::get('/hello',function(){
 
 /**
  * 
- * Game API Routes
+ * GAME API ROUTES
  * 
  */
 
@@ -46,7 +46,7 @@ Route::get('/multi_player_game',[gameController::class,'getMultiPlayerGame']);
 
 /**
  * 
- * Trophy API Routes
+ * TROPHY API ROUTES
  * 
  */
 
@@ -56,7 +56,7 @@ Route::get('/trophyInfo/{id}',[gameController::class,'getTrophyInfo']);
 
 /**
  * 
- * Leaderboard API Routes
+ *LEADERBOARD API ROUTES(ALL TIME, MONTHLY, WEEKLY, DAILY)
  * 
  */
 
@@ -68,13 +68,59 @@ Route::get('/leaderboardMonthly',[gameController::class,'leaderboardMonthly']);
 
 Route::get('/leaderboardToday',[gameController::class,'leaderboardToday']);
 
+
+
+
+/**
+ * 
+ * GOOGLE OAUTH ROUTES AND FACEBOOK OAUTH ROUTES
+ * 
+ */
+
+Route::post('/googleOauthLogin', [LoginController::class, 'googleLogin']);
+
+Route::post('/facebookOauthLogin', [LoginController::class, 'facebookLogin']);
+
+
+/**
+ * 
+ * REGISTER AND LOGIN API ROUTES (EMAIL AND PASSWORD)
+ * 
+ */
+
+Route::post('/registerEmail', [SignupLoginController::class, 'register']);
+
+Route::post('/loginEmail', [SignupLoginController::class, 'login']);
+
+/**
+ * 
+ * FORGOT PASSWORD AND RESET PASSWORD API ROUTES
+ * 
+ */
+
+
+Route::post('/forgetPasswordLink', [SignupLoginController::class, 'forgetPassword']);
+
+Route::post('/resetPassword', [SignupLoginController::class, 'resetPassword']);
+
+/**
+ * 
+ * GET FEATURE GAME AND ALL USER STATS API ROUTES
+ * 
+ */
+
+Route::get('/get_featured_game',[gameController::class,'getFeaturedGame']);
+
+Route::get('/all_user_played_stats',[gameController::class,'getAllUserPlayedStats']);
+
+//GROUPED MIDDLEWARE ROUTES
+
 Route::middleware(['VerifyUser'])->group(function () {
 
-    Route::post('/userGamePlayedData',[gameController::class,'insertUserGamePlayedData']);
 
     /**
      * 
-     * Statistics API Routes
+     * USER STATISTICS API ROUTES
      * 
      */
 
@@ -84,7 +130,13 @@ Route::middleware(['VerifyUser'])->group(function () {
 
     Route::get('/particular_user_played_stats',[gameController::class,'getUserPlayedStats']);
 
-    //player rank in leaderboard 
+    Route::post('/userGamePlayedData',[gameController::class,'insertUserGamePlayedData']);
+
+    /**
+     * 
+     * PARTICULAR USER RANK API Routes(ALL TIME, WEEKLY, MONTHLY, TODAY) AND LIVE SCORE API Routes
+     * 
+     */
 
     Route::get('/leaderboardUserRankAlltime/{user_id}',[gameController::class,'getUserRankAlltime']);
 
@@ -94,58 +146,21 @@ Route::middleware(['VerifyUser'])->group(function () {
 
     Route::get('/leaderboardUserRankToday/{user_id}',[gameController::class,'getUserRankToday']);
 
-    // user profile dashboard
+    Route::post('/live-score',[gameController::class,'getLiveScore']);
+
+    /**
+     * 
+     * USER PROFILE, CHANGE PASSWORD, CHANGE PASSWORD API ROUTES
+     * 
+     */
 
     Route::get('/userProfile', [UserController::class, 'userProfile']);   
     
-    //change user profile picture
     Route::post('/changeProfilePicture', [UserController::class, 'changeProfilePicture']);
 
-    //change user password
     Route::post('/changePassword', [UserController::class, 'changePassword']);
 
-    //live-score api
-
-    Route::post('/live-score',[gameController::class,'getLiveScore']);
 });
-
-
-
-/**
- * 
- * Google and Facebook Oauth Routes
- * 
- */
-// Route::middleware(['checkHeaderToken'])->group(function () {
-//     Route::post('/googleOauthLogin', [LoginController::class, 'googleLogin']);
-// });
-Route::post('/googleOauthLogin', [LoginController::class, 'googleLogin']);
-Route::post('/facebookOauthLogin', [LoginController::class, 'facebookLogin']);
-
-
-/**
- * 
- * Registration and Login Routes(email based)
- * 
- */
-
-Route::post('/registerEmail', [SignupLoginController::class, 'register']);
-
-Route::post('/loginEmail', [SignupLoginController::class, 'login']);
-
-//forget password 
-
-Route::post('/forgetPasswordLink', [SignupLoginController::class, 'forgetPassword']);
-
-//change password 
-
-Route::post('/resetPassword', [SignupLoginController::class, 'resetPassword']);
-
-Route::get('/all_user_played_stats',[gameController::class,'getAllUserPlayedStats']);
-
-//get featured game
-
-Route::get('/get_featured_game',[gameController::class,'getFeaturedGame']);
 
 
 

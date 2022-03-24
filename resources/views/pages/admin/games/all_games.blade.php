@@ -104,6 +104,35 @@
   
   <script>
 
+$(document).ready(function() {
+  $('#all-games-table').DataTable({
+    // "sScrollX": '100%'
+  });
+  } 
+);
+
+
+// PUBLISH GAME FUNCTION
+
+function publishFunc(this_para,id){
+  
+  var id = id;
+  var published = $(this_para).prop('checked');
+  var published = published ? 1 : 0;
+  // ajax
+  $.ajax({
+  type:"post",
+  url: "{{ url('publish/game') }}",
+  data: { _token: "{{csrf_token()}}" , id: id , published: published },
+  dataType: 'json',
+      success: function(res){
+              alert('Game published successfully');
+      }
+  });
+}
+
+//DELETE GAME FUNCTION
+
 function deleteFunc(this_para,id){
   var id = id;
    swal({
@@ -133,30 +162,7 @@ function deleteFunc(this_para,id){
 
 }
 
-// add data table 
-$(document).ready(function() {
-  $('#all-games-table').DataTable({
-    // "sScrollX": '100%'
-  });
-  } 
-);
 
-function publishFunc(this_para,id){
-  
-    var id = id;
-    var published = $(this_para).prop('checked');
-    var published = published ? 1 : 0;
-    // ajax
-    $.ajax({
-    type:"post",
-    url: "{{ url('publish/game') }}",
-    data: { _token: "{{csrf_token()}}" , id: id , published: published },
-    dataType: 'json',
-        success: function(res){
-                alert('Game published successfully');
-        }
-    });
-}
 
 </script>
 @endsection

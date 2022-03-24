@@ -156,21 +156,11 @@
             
             <div class="col-md-2"></div>
             </div><!-- /.row -->
-
-
-
-           
-
-
           </div>
 
           <div class="col-md-2"></div>
         </div>
 
-
-           
-
-          
 
           </div>
         </div>
@@ -271,53 +261,7 @@ function checkFunc(){
     
 }
 
-    // on audio-upload-form submit using javascript 
-
-    //form submit event listener 
-    
-
   
-
-
-    //addFunc 
-// function addFunc(elem){
-//     if($('#success_audio').val() != ''){
-//         var audio_file = $('#success_audio').val();
-//     }
-//     if($('#failure_audio').val() != ''){
-//         var audio_file = $('#failure_audio').val();
-//     }
-//     var audio_type= $('#music_option').val();
-
-//     var url = "{{url('add_music') }}";
-//     $.ajax({
-//         url: url,
-//         type: 'POST',
-//         data: {
-//             audio_type:audio_type,
-//             audio_file: audio_file,
-//             _token: "{{csrf_token()}}"
-//         },
-//         success: function(data){
-//             alert('success');
-//             console.log(data);
-//             // //get number of rows
-//             // var rowCount = $('#all-questions-table tr').length;
-//             // //add row to table
-//             // var row = '<tr><td style="width:5%">'+ rowCount+'</td><td>'+data.tag_name+'</td><td style="width:20%"><a href="javascript:void(0)" class="btn btn-primary " onclick="editFunc(this,'+data.id+')" data-toggle="modal" data-target="#modelId"> <i class="fa fa-edit"></i> </a> <a href="javascript:void(0)" class="btn btn-danger text-light deleteBtn" onclick="deleteFunc(this,'+data.id+')"> <i class="fa fa-trash" aria-hidden="true"></i> </a></td></tr>';
-//             // $('#all-questions-table tbody').append(row);
-//             // //clear input
-//             // $('#tag_name').val('');
-
-//         }
-//     });
-// }
-
-
-
-
-
-
 
 </script>
 

@@ -6,5 +6,7 @@
 
 @yield('content')
 
+@stack('scripts')
+
 @include('layout.footer')
 

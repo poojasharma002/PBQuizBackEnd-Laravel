@@ -60,11 +60,7 @@
                                         </select>
                                     </div>
 
-                                    
-                                    <!-- <div class="form-group" id="multiplayer-field_div">
-                                        <label for="exampleFormControlSelect2">Schedule</label >
-                                        <input type="datetime-local" class="form-control" id="game_time" name="game_time" value="{{$game->game_time}}"">
-                                    </div> -->
+
 
                                     <div class="form-group" id="multiplayer-field_div">
                                         <label for="exampleFormControlSelect2">Schedule Date</label >
@@ -98,16 +94,6 @@
                                         </div>
                                     </div>
 
-<!-- 
-                                    <div class="form-group">
-                                      <label for="gametag">Game Tag</label>
-                                      <select class="form-control" name="tag" id="tag">
-                                        @foreach($tags as $tag)
-                                        <option value="{{$tag->id}}" @if($game_tag_name == "$tag->name") selected @endif>{{$tag->name}}</option>
-                                        @endforeach
-                                      </select>
-                                    </div> -->
-
                                     <div class="form-group">
                                       <label for="publish game">Publish Game</label>
                                       <select class="form-control" name="published" id="published">
@@ -130,7 +116,7 @@
                             </fieldset>
                             <fieldset>
                                 <div class="form-card">
-                                    <!-- <h2 class="fs-title">Personal Information</h2>    -->
+
                                   
 
                                     <div class="form-group">
@@ -165,11 +151,6 @@
                                             <option value={{$trophies->id}} @if($trophy->trophy_name == $trophies->trophy_name) selected @endif>{{$trophies->trophy_name}}</option>
                                             @endforeach
 
-                                            <!-- <option @if($game->trophy == "Trophy 1") selected @endif>Trophy 1</option>
-                                            <option @if($game->trophy == "Trophy 2") selected @endif>Trophy 2</option>
-                                            <option @if($game->trophy == "Trophy 3") selected @endif>Trophy 3</option>
-                                            <option @if($game->trophy == "Trophy 4") selected @endif>Trophy 4</option>
-                                            <option @if($game->trophy == "Trophy 5") selected @endif>Trophy 5</option> -->
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -209,11 +190,7 @@
                                             </div>
                                       
                                         </div>
-                                    
 
-
-                                        <!-- <label for="exampleFormControlTextarea1">Video Snippet</label>
-                                        <textarea class="form-control" id="round_1_host_video_snippet" rows="3" name="round_1_host_video_snippet">{{$game->round_1_host_video_snippet}}</textarea> -->
                                     </div>
 
                                  
@@ -235,11 +212,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- <div class="form-group">
-                                        <label for="exampleFormControlTextarea1">Video Snippet</label>
-                                        <textarea class="form-control" id="round_2_host_video_snippet" rows="3" name="round_2_host_video_snippet">{{$game->round_2_host_video_snippet}}</textarea>
-                                    </div> -->
-
 
                                     <h2 class="fs-title">Round 3</h2>
                                     <label for="exampleFormControlTextarea1">Round 3 Starting Video </label>
@@ -255,11 +227,6 @@
                                       
                                     </div>
 
-                                        <!-- <div class="form-group">
-                                            <label for="exampleFormControlTextarea1">Video Snippet</label>
-                                            <textarea class="form-control" id="round_3_host_video_snippet" rows="3" name="round_3_host_video_snippet">{{$game->round_3_host_video_snippet}}</textarea>
-                                        </div> -->
-                                    
                                     </div>
 
                                 
@@ -299,30 +266,32 @@
 
 <script>
 
-//if game type is multiplayer hide the field
-        if(document.getElementById('gametype').value == 'Multi Player'){
-            $('#multiplayer-field_div').show();
-        }else{
-            $('#multiplayer-field_div').hide();
-        }
+$('.select2').select2()
+
+//Initialize Select2 Elements
+$('.select2bs4').select2({
+  theme: 'bootstrap4'
+})
+
+// SHOW AND HIDE MULTIPLAYER INPUT FIELDS
+
+if(document.getElementById('gametype').value == 'Multi Player'){
+    $('#multiplayer-field_div').show();
+}else{
+    $('#multiplayer-field_div').hide();
+}
    
-  function multiplayerCheck() {
-        if (document.getElementById('gametype').value == 'Multi Player') {
-            document.getElementById('multiplayer-field_div').style.display = 'block';
-        } else {
-            document.getElementById('multiplayer-field_div').style.display = 'none';
-        }
+function multiplayerCheck() {
+    if (document.getElementById('gametype').value == 'Multi Player') {
+        document.getElementById('multiplayer-field_div').style.display = 'block';
+    } else {
+        document.getElementById('multiplayer-field_div').style.display = 'none';
     }
-    $('.select2').select2()
-
-    //Initialize Select2 Elements
-    $('.select2bs4').select2({
-      theme: 'bootstrap4'
-    })
+}
 
 
+//FUNCTIONLAITY TO SELECT AND DESELECT QUESTIONS IN ROUND 1, 2 AND 3 IF QUSTION IS ALREADY SELECTED
 
-//store blade variable $$tag_name_array in javascript object
 var tag_name_object = [];
 tag_name_object   = @json($tag_name_array);
 
@@ -357,7 +326,7 @@ questions.forEach(element => {
     //insert all questions in select tag
 
 });
-console.log(all_questions);
+
 for(var i=0; i<all_questions.length; i++){
     $('#round-1-select-tag').append('<option value="'+all_questions[i]+'">'+all_questions[i]+'</option>');
     $('#round-2-select-tag').append('<option value="'+all_questions[i]+'">'+all_questions[i]+'</option>');
@@ -386,10 +355,7 @@ $('#round-1-select-tag').on('change', function(){
         }
     });
     
-
     //make all_selected_questions selected in round 2 select tag
-    console.log('round_2_selected_questions', round_2_selected_questions);
-
 
     selected_questions = [];
     all_selected_questions = [];
@@ -403,8 +369,7 @@ $('#round-1-select-tag').on('change', function(){
             non_selected_questions.push(element);
         }
     });
-    console.log('all_selected_questions', all_selected_questions);
-    console.log('non_selected_questions', non_selected_questions);
+
     $('#round-2-select-tag').empty();
     $('#round-3-select-tag').empty();
     for(var i=0; i<non_selected_questions.length; i++){
@@ -412,7 +377,7 @@ $('#round-1-select-tag').on('change', function(){
         $('#round-3-select-tag').append('<option value="'+non_selected_questions[i]+'">'+non_selected_questions[i]+'</option>');
     }
     //make all_selected_questions selected in round 2 select tag
-    console.log('round_2_selected_questions', round_2_selected_questions);
+
     $('#round-2-select-tag').val(round_2_selected_questions);
     $('#round-3-select-tag').val(round_3_selected_questions);
 
@@ -465,9 +430,7 @@ $('#round-3-select-tag').on('change', function(){
     round1_selected_questions = $('#round-1-select-tag').val();
     round2_selected_questions = $('#round-2-select-tag').val();
     round3_selected_questions = $('#round-3-select-tag').val();
-    console.log('round3_selected_questions', round3_selected_questions);
-    console.log('round1_selected_questions', round1_selected_questions);
-    console.log('round2_selected_questions', round2_selected_questions);
+
     $('#round-1-select-tag').find('option').each(function(){
         if(round3_selected_questions.includes($(this).val())){
             //remove that option from round 1 select tag

@@ -147,8 +147,13 @@
       </div>
   </div>
   <script>
+
+  //DIASBLE ENTER BUTTON
   window.addEventListener('keydown',function(e){if(e.keyIdentifier=='U+000A'||e.keyIdentifier=='Enter'||e.keyCode==13){if(e.target.nodeName=='INPUT'&&e.target.type=='text'){e.preventDefault();return false;}}},true);
-    //addFunc 
+
+
+// ADD TAG FUNCTION
+
 function addFunc(elem){
 
 
@@ -185,13 +190,15 @@ function addFunc(elem){
     });
 }
 
+//EDIT TAG FUNCTION
+
 function editFunc(this_para,id){
     //get the value of the tag name
     var tag_name = $(this_para).closest('tr').find('td:eq(1)').text();
     //set the value of the tag_name_edit
     $('#tag_name_edit').val(tag_name);
     
-//on click of update-btn update the tag name in the database
+
 $('#update-btn').click(function(e){
     var tag_name_edit = $('#tag_name_edit').val();
 
@@ -223,6 +230,8 @@ $('#update-btn').click(function(e){
 });
 
 }
+
+// DELETE TAG FUNCTION
 
 function deleteFunc(this_para,id){
   var id = id;
@@ -260,7 +269,6 @@ function deleteFunc(this_para,id){
 }
        
 
-// add data table 
 $(document).ready(function() {
   $('#all-tags-table').DataTable();
   } 
