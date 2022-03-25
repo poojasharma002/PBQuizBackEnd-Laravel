@@ -61,7 +61,7 @@
                                     
                                     <div class="form-group" id="multiplayer-field_div">
                                         <label for="exampleFormControlSelect2">Schedule Date</label >
-                                        <input type="date" name="schedule_date" id="schedule_date" class="form-control" >
+                                        <input type="date" name="schedule_date" id="schedule_date" class="form-control"  max="3000-10-29">
 
                                         <label for="">Schedule time </label>
                                      <input type="time" name="schedule_time" id="schedule_time" class="form-control">
@@ -270,6 +270,29 @@ $('.select2').select2()
 $('.select2bs4').select2({
   theme: 'bootstrap4'
 })
+
+$("#schedule_date").datepicker({
+            maxDate: Date.parse("2100-01-01"),
+        });
+
+        // validation in case user types the date out of valid range from keyboard : To fix the bug with out of range date time while saving in sql 
+        $(function () {
+            $.validator.addMethod(
+                "date",
+                function (value, element) {
+
+                    var minDate = Date.parse("1900-01-01");
+                    var maxDate = Date.parse("2100-01-01");
+                    var valueEntered = Date.parse(value);
+
+                    if (valueEntered < minDate || valueEntered > maxDate) {
+                        return false;
+                    }
+                    return !/Invalid|NaN/.test(new Date(minDate));
+                },
+                "Please enter a valid date!"
+            );
+        });
 
 // SHOW AND HIDE MULTIPLAYER INPUT FIELDS
 document.getElementById('multiplayer-field_div').style.display = 'none';

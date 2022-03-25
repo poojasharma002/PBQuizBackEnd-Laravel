@@ -22,10 +22,6 @@ use App\Http\Controllers\Oauth\LoginController;
 |
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
 Route::get('/hello',function(){
     return "Hello World";
 }); 
@@ -161,21 +157,4 @@ Route::middleware(['VerifyUser'])->group(function () {
     Route::post('/changePassword', [UserController::class, 'changePassword']);
 
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
