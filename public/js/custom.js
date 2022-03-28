@@ -20,6 +20,17 @@ if($("#gametype").val() == "Multi Player"){
     swal("Please select a date", "", "error");
     return false;
   }
+
+//schedule date validation
+  var date = new Date();
+  var schedule_year = $("#schedule_date").val().split("-")[0];
+
+  if(schedule_year > 3000 ||  schedule_year<= date.getFullYear()){
+    swal("Please select a valid date", "", "error");
+    return false;
+  }
+
+
   if($("#schedule_time").val() == ""){
     swal("Please select a time", "", "error");
     return false;
