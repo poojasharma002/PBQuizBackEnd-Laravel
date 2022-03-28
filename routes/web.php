@@ -47,7 +47,9 @@ Route::get('/add_question', [adminController::class, 'add_question'])
                 ->middleware(['auth', 'verified'])
                 ->name('add_question');
 
-Route::post('/add_question', [adminController::class, 'store_question']);
+Route::post('/add_question', [adminController::class, 'store_question']);Route::post('/add_question', [adminController::class, 'store_question'])
+                ->middleware(['auth', 'verified'])
+                ->name('add-questions');
 
 Route::post('delete/question', [adminController::class, 'deleted_question']);
 
@@ -92,8 +94,8 @@ Route::post('delete/game', [adminController::class, 'delete_game']);
  */
 
 Route::get('/all_users', [adminController::class, 'all_users'])
-->middleware(['auth', 'verified'])
-->name('all_users');
+                    ->middleware(['auth', 'verified'])
+                    ->name('all_users');
 
 //change user status
 Route::get('/change_status/{id}', [adminController::class, 'change_status']);
