@@ -104,7 +104,7 @@ class gameController extends Controller
     public function getMultiPlayerGame()
     {
         try{
-            date_default_timezone_set("Asia/Calcutta");
+            date_default_timezone_set("America/New_York");
 
             $games =  game::where('published', 1)
             ->where('deleted', 0)
