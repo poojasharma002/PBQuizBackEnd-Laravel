@@ -201,7 +201,7 @@ class adminController extends Controller
             'time_down_video_snippet' => $request->input('time_down_video_snippet')
         ]);
 
-        return redirect()->back()->with('message', 'Game added successfully');
+        return redirect()->route('all_games')->with('message', 'Game added successfully');
     }
 
     public function all_games()
