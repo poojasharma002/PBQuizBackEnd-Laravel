@@ -25,7 +25,7 @@ if($("#gametype").val() == "Multi Player"){
   var date = new Date();
   var schedule_year = $("#schedule_date").val().split("-")[0];
 
-  if(schedule_year > 3000 ||  schedule_year<= date.getFullYear()){
+  if(schedule_year > 3000 ){
     swal("Please select a valid date", "", "error");
     return false;
   }
