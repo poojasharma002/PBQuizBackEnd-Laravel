@@ -84,7 +84,8 @@ class gameController extends Controller
                     'image' => $game->game_image,
                     'type' => $game->gametype,
                     'schedule_time' => $game->schedule_time,
-                    'schedule_date' => $game->schedule_date
+                    'schedule_date' => $game->schedule_date,
+                    'host' => settings::where('id',$game->host)->first()->name,
                 ];
             }
     
@@ -104,7 +105,7 @@ class gameController extends Controller
     public function getMultiPlayerGame()
     {
         try{
-            date_default_timezone_set("America/New_York");
+            date_default_timezone_set("Asia/Calcutta");
 
             $games =  game::where('published', 1)
             ->where('deleted', 0)
@@ -122,7 +123,8 @@ class gameController extends Controller
                         'name' => $game->gamename,
                         'image' => $game->game_image,
                         'schedule_time' => $game->schedule_time,
-                        'schedule_date' => $game->schedule_date
+                        'schedule_date' => $game->schedule_date,
+                        'host' => settings::where('id',$game->host)->first()->name,
                     ];
                 }
             }else{
