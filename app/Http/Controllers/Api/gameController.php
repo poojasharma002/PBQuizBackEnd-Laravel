@@ -133,7 +133,7 @@ class gameController extends Controller
     
             $data = [
                 'success' => true,
-                'data' => $game_details,
+                'data' => $games_details,
                 'error' => null,
                 'status' => 200
             ];
