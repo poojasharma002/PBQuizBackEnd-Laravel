@@ -105,8 +105,8 @@ class gameController extends Controller
     public function getMultiPlayerGame()
     {
         try{
-            //date_default_timezone_set("Asia/Calcutta");
             date_default_timezone_set("America/New_York");
+
             $games =  game::where('published', 1)
             ->where('deleted', 0)
             ->where('gametype', 'Multi Player')
@@ -124,13 +124,12 @@ class gameController extends Controller
                         'image' => $game->game_image,
                         'schedule_time' => $game->schedule_time,
                         'schedule_date' => $game->schedule_date,
-                        'host' => settings::where('id',$game->host)->first()->name,
+                        // 'host' => settings::where('id',$game->host)->first()->name,
                     ];
                 }
             }else{
                 $games_details = "No Multiplayer games available";
             }
-    
             $data = [
                 'success' => true,
                 'data' => $games_details,
@@ -549,8 +548,6 @@ class gameController extends Controller
         $total_questions = $total_correct_answer + $total_incorrect_answer;
 
 
-
-
         //find the game_id which is coming most frequently from statistics table
         $statistics = statistics::select('game_id', DB::raw("count(*) as c"))
             ->where('user_id','=',$user_id)
@@ -558,8 +555,12 @@ class gameController extends Controller
             ->get();
 
         if(count($statistics) >0 ){
-            $game_id = $statistics[0]['game_id'];
-            $mostPlayedGame = game::where('id', $game_id)->first()->gamename;
+              $game_id = statistics::select('game_id', DB::raw("count(*) as c"))
+                ->where('user_id','=',$user_id)
+                ->groupBy('game_id')
+                ->orderBy('c', 'desc')
+                ->first();
+                $mostPlayedGame = game::where('id', $game_id->game_id)->first()->gamename;
         }else{
             $mostPlayedGame = 0;
         }
@@ -595,6 +596,15 @@ class gameController extends Controller
             ->where('star_won', 1)
             ->count();
 
+        //total trophies won by user of distinct games
+        $total_trophies = statistics::where('user_id', $user_id)
+            ->distinct('game_id')
+            ->where('trophy_won', 1)
+            ->count();
+        
+        
+        
+
         
         $data = [
             'success' => true,
@@ -612,6 +622,7 @@ class gameController extends Controller
                 'most_played_game' => $mostPlayedGame,
                 'games_completed' => $games_completed,
                 'total_games_available' => $total_games,
+                'total_trophies_won' => $total_trophies
             ],
             'error' => null,
             'status' => 200
