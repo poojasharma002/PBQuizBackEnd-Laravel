@@ -22,6 +22,10 @@ use App\Http\Controllers\Oauth\LoginController;
 |
 */
 
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
 Route::get('/hello',function(){
     return "Hello World";
 }); 
@@ -128,6 +132,8 @@ Route::middleware(['VerifyUser'])->group(function () {
 
     Route::post('/userGamePlayedData',[gameController::class,'insertUserGamePlayedData']);
 
+    Route::get('/user_trophy_won_details',[gameController::class,'getUserTrophyWon']);
+
     /**
      * 
      * PARTICULAR USER RANK API Routes(ALL TIME, WEEKLY, MONTHLY, TODAY) AND LIVE SCORE API Routes
@@ -157,4 +163,21 @@ Route::middleware(['VerifyUser'])->group(function () {
     Route::post('/changePassword', [UserController::class, 'changePassword']);
 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
