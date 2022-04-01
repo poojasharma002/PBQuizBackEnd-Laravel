@@ -239,6 +239,11 @@ class gameController extends Controller
         try{
             $user_ids = statistics::distinct()
             ->get(['user_id']);
+              
+            //get user_ids where status = 1 in user table
+            $user_ids = $user_ids->filter(function ($value, $key) {
+                return $value->user->status == 1;
+            });
 
             $leaderboard = [];
             foreach ($user_ids as $user_id) {
@@ -275,6 +280,11 @@ class gameController extends Controller
             ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
             ->get(['user_id']);
 
+            //get user_ids where status = 1 in user table
+            $user_ids = $user_ids->filter(function ($value, $key) {
+                return $value->user->status == 1;
+            });
+
             $leaderboard = [];
             foreach ($user_ids as $user_id) {
                 $leaderboard[] = [
@@ -310,6 +320,11 @@ class gameController extends Controller
             $user_ids = statistics::distinct()
             ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
             ->get(['user_id']);
+
+            //get user_ids where status = 1 in user table
+            $user_ids = $user_ids->filter(function ($value, $key) {
+                return $value->user->status == 1;
+            });
 
             $leaderboard = [];
             foreach ($user_ids as $user_id) {
@@ -348,6 +363,11 @@ class gameController extends Controller
             $user_ids = statistics::distinct()
             ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
             ->get(['user_id']);
+
+            //get user_ids where status = 1 in user table
+            $user_ids = $user_ids->filter(function ($value, $key) {
+                return $value->user->status == 1;
+            });
 
             $leaderboard = [];
             foreach ($user_ids as $user_id) {
@@ -501,6 +521,49 @@ class gameController extends Controller
                 ];
             }
             
+
+            $data = [
+                'success' => true,
+                'data' => $trophies,
+                'error' => null,
+                'status' => 200
+            ];
+
+            return response()->json($data)->setStatusCode(200);
+        }
+        catch(Exception $e){
+            return response()->json(['status'=>'error','message'=>$e->getMessage()]);
+        }
+    }
+
+    public function getUserTrophyWon(Request $request)
+    {
+        $headerToken = $request->header('Authorization');
+        $user = User::where('token', $headerToken)->first();
+
+        try{
+            $user_id = $user->id;
+            //get all trophies won by user where trophy_won = 1 and star_won = 1 with distinct game_id
+            $statistics = statistics::select('game_id','user_id','trophy_won','total_score')
+            ->where('user_id', $user_id)
+            ->where('trophy_won', 1)
+            ->orderBy('total_score', 'desc')
+            ->get()
+            ->unique('game_id');
+
+            //get trophy name and trophy_image from trophy table 
+            
+            $trophies = [];
+            foreach ($statistics as $statistic) {
+                $trophies[] = [
+                    'game_id' => $statistic->game_id,
+                    'trophy_id' => game::where('id', $statistic->game_id)->first()->trophy,
+                    'trophy_name' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_name,
+                    'trophy_image' => trophy::where('id', game::where('id', $statistic->game_id)->first()->trophy)->first()->trophy_image
+                ];
+            }
+
+
 
             $data = [
                 'success' => true,
@@ -695,7 +758,12 @@ class gameController extends Controller
 
             $userIds = statistics::distinct()
                 ->get(['user_id']);
+            
 
+                $user_ids = $userIds->filter(function ($value, $key) {
+                    return $value->user->status == 1;
+                });
+    
             $leaderboard = [];
             foreach ($userIds as $user_id) {
                 $leaderboard[] = [
@@ -758,6 +826,12 @@ class gameController extends Controller
             $userIds = statistics::distinct()
                 ->whereBetween('created_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
                 ->get(['user_id']);
+
+                
+                $user_ids = $userIds->filter(function ($value, $key) {
+                    return $value->user->status == 1;
+                });
+    
 
             $leaderboard = [];
             foreach ($userIds as $user_id) {
@@ -825,6 +899,12 @@ class gameController extends Controller
                 ->whereBetween('created_at', [Carbon::now()->startOfDay(), Carbon::now()->endOfDay()])
                 ->get(['user_id']);
 
+                
+                $user_ids = $userIds->filter(function ($value, $key) {
+                    return $value->user->status == 1;
+                });
+    
+
             $leaderboard = [];
             foreach ($userIds as $user_id) {
                 $leaderboard[] = [
@@ -889,6 +969,12 @@ class gameController extends Controller
             $userIds = statistics::distinct()
                 ->whereBetween('created_at', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
                 ->get(['user_id']);
+
+            
+                $user_ids = $userIds->filter(function ($value, $key) {
+                    return $value->user->status == 1;
+                });
+    
 
             $leaderboard = [];
             foreach ($userIds as $user_id) {
