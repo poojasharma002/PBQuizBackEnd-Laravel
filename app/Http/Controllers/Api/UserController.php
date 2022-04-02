@@ -81,14 +81,24 @@ class UserController extends Controller
                 'status' => 401
             ], 401);
         }else{
-            $user->password = Hash::make($request->new_password);
-            $user->save();
-            return response()->json([
-                'success' => true,
-                'data' => $user,
-                'error' => null,
-                'status' => 200
-            ], 200);
+            //check if new password is same as old password
+            if ($request->new_password == $request->old_password) {
+                return response()->json([
+                    'success' => false,
+                    'data' => null,
+                    'error' => 'New password is same as old password.',
+                    'status' => 401
+                ], 401);
+            }else{ 
+                $user->password = Hash::make($request->new_password);
+                $user->save();
+                return response()->json([
+                    'success' => true,
+                    'data' => $user,
+                    'error' => null,
+                    'status' => 200
+                ], 200);
+            }
         }
 
     }
